@@ -1,0 +1,14 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.ts",
+  "scripts": {
+    "start": "node src/server.ts"
+  },
+  "author": "Tan-Colin Wei",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
