@@ -1,14 +1,24 @@
 import express, { Request, Response } from "express"
 import dotenv from "dotenv"
 import connectDB from "./config/mongoDB"
+import userRouter from "./routes/userRouter"
+import { errorHandler, notFound } from "./middleware/errorHandler"
+
+dotenv.config()
 
 connectDB()
 const app = express()
-dotenv.config()
+
+app.use(express.json())
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World")
 })
+
+app.use("/api/", [userRouter()])
+
+app.use(notFound)
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3000
 

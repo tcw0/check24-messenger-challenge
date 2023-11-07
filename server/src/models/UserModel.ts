@@ -1,9 +1,21 @@
-import { model, Schema } from "mongoose"
+import { model, Document, Schema } from "mongoose"
 import { emailValidator } from "./validator"
 
 export enum UserTypeEnum {
   CUSTOMER = "customer",
   SERVICEPROVIDER = "service_provider",
+}
+
+export interface UserDocument extends Document {
+  name: string
+  email: string
+  password: string
+  phone: string
+  picture: string
+  registeredSince: Date
+  rating: number
+  address_id: string
+  user_type: UserTypeEnum
 }
 
 const UserSchema = new Schema({
@@ -18,7 +30,6 @@ const UserSchema = new Schema({
   phone: { type: Schema.Types.String, required: true },
   picture: {
     type: Schema.Types.String,
-    required: true,
     default:
       "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
   },
