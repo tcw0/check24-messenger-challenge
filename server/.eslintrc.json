@@ -1,5 +1,6 @@
 {
   "parser": "@typescript-eslint/parser",
+  "ignorePatterns": ["jest.config.ts", "jest.config.unit.ts", "**/dist/*"],
   "plugins": ["@typescript-eslint"],
   "extends": [
     "eslint:recommended",
