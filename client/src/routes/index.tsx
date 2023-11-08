@@ -27,6 +27,16 @@ const Loadable =
 export default function Router() {
   return useRoutes([
     {
+      path: "/auth",
+      element: <></>,
+      children: [
+        {
+          path: "login",
+          element: <></>,
+        },
+      ],
+    },
+    {
       path: "/",
       element: <DashboardLayout />,
       children: [
