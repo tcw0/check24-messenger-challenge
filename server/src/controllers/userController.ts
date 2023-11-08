@@ -18,7 +18,7 @@ export const convertUserType = (user_type: string): UserTypeEnum => {
 }
 
 export const createNewUser = asyncHandler(async (req, res) => {
-  const { name, email, password, phone, picture, address, user_type } = req.body
+  const { name, email, password, phone, url, picture, address, user_type } = req.body
 
   if (!name || !email || !password || !phone || !address || !user_type) {
     res.status(400).send()
@@ -42,6 +42,7 @@ export const createNewUser = asyncHandler(async (req, res) => {
     email: email,
     password: hash,
     phone: phone,
+    url: url,
     picture: picture,
     registeredSince: new Date(),
     rating: -1,
