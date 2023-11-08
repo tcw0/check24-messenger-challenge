@@ -1,4 +1,4 @@
-import { model, Document, Schema } from "mongoose"
+import { model, Document, Schema, ObjectId } from "mongoose"
 import { emailValidator } from "./validator"
 
 export enum UserTypeEnum {
@@ -11,10 +11,11 @@ export interface UserDocument extends Document {
   email: string
   password: string
   phone: string
+  url?: string
   picture: string
   registeredSince: Date
   rating: number
-  address_id: string
+  address_id: ObjectId
   user_type: UserTypeEnum
 }
 
@@ -28,6 +29,7 @@ const UserSchema = new Schema({
   },
   password: { type: Schema.Types.String, required: true },
   phone: { type: Schema.Types.String, required: true },
+  url: { type: Schema.Types.String, required: false },
   picture: {
     type: Schema.Types.String,
     default:
