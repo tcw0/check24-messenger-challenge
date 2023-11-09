@@ -24,7 +24,7 @@ import Visibility from "@mui/icons-material/Visibility"
 import VisibilityOff from "@mui/icons-material/VisibilityOff"
 
 // references
-// import { AuthContext } from 'src/context/AuthContext'
+import { AuthContext } from "../../contexts/AuthContext/AuthContext"
 import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
 
 export default function Login({
@@ -48,7 +48,7 @@ export default function Login({
 
   const [loading, setLoading] = React.useState(false)
 
-  // const authContext = React.useContext(AuthContext)
+  const authContext = React.useContext(AuthContext)
   const snackbarContext = React.useContext(SnackbarContext)
 
   const navigate = useNavigate()
@@ -65,7 +65,7 @@ export default function Login({
         },
       }
 
-      await axios.post(
+      const { data } = await axios.post(
         "/api/user/login",
         {
           email,
@@ -73,13 +73,26 @@ export default function Login({
         },
         config
       )
-      setLoading(false)
+
+      console.log("jump into login")
+
+      authContext.login(
+        data.token,
+        data.id,
+        data.name,
+        data.picture,
+        rememberMe, 
+        data.user_type
+      )
+
       snackbarContext.showSnackBarWithMessage("Login successful", "success")
       setOpenLogin(false)
       navigate("/app")
     } catch (error) {
       snackbarContext.showSnackBarWithError(error)
     }
+
+    setLoading(false)
   }
 
   const handleSignup = () => {

@@ -57,6 +57,7 @@ export const createNewUser = asyncHandler(async (req, res) => {
     name: newUser.name,
     picture: newUser.picture,
     token: generateToken(newUser._id),
+    user_type: newUser.user_type,
   })
 })
 
@@ -75,6 +76,7 @@ export const authUser = asyncHandler(async (req, res) => {
     name: user.name,
     picture: user.picture,
     token: generateToken(user._id),
+    user_type: user.user_type,
   })
 })
 
@@ -101,5 +103,7 @@ export const getServiceProvider = asyncHandler(async (req, res) => {
     _id: { $ne: (req.user as User).id },
   })
 
-  res.send(service_providers)
+  res.status(200).json(service_providers)
 })
+
+
