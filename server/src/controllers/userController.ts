@@ -16,7 +16,8 @@ export const convertUserType = (user_type: string): UserTypeEnum => {
 }
 
 export const createNewUser = asyncHandler(async (req, res) => {
-  const { name, email, password, phone, url, picture, address, user_type } = req.body
+  const { name, email, password, phone, url, picture, address, user_type } =
+    req.body
 
   if (!name || !email || !password || !phone || !address || !user_type) {
     res.status(400).send()
@@ -51,7 +52,12 @@ export const createNewUser = asyncHandler(async (req, res) => {
     throw new Error("Error creating new user.")
   }
 
-  res.status(201).send()
+  res.status(200).json({
+    id: newUser._id,
+    name: newUser.name,
+    picture: newUser.picture,
+    token: generateToken(newUser._id),
+  })
 })
 
 export const authUser = asyncHandler(async (req, res) => {

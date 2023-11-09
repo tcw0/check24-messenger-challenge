@@ -28,11 +28,11 @@ export default function Router() {
   return useRoutes([
     {
       path: "/auth",
-      element: <></>,
+      element: <Homepage/>,
       children: [
         {
           path: "login",
-          element: <></>,
+          element: <LoginSignup openLogin={true} setOpenLogin={() => false} />,
         },
       ],
     },
@@ -53,3 +53,5 @@ export default function Router() {
 
 const GeneralApp = Loadable(lazy(() => import("../pages/dashboard/GeneralApp")))
 const Page404 = Loadable(lazy(() => import("../pages/Page404")))
+const Homepage = Loadable(lazy(() => import("../pages/auth/Homepage")))
+const LoginSignup = Loadable(lazy(() => import("../pages/auth/LoginSignup")))
