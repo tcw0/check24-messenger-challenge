@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import asyncHandler from "express-async-handler"
-import { AddressDocument } from "../models/AddressModel"
 import { UserService, UserTypeEnum } from "../models/UserModel"
-import { createNewAddress } from "./addressController"
 import { generateToken } from "../config/generateToken"
 import bcrypt from "bcrypt"
 
@@ -35,8 +33,6 @@ export const createNewUser = asyncHandler(async (req, res) => {
     throw new Error("User with this email already exists.")
   }
 
-  const newAddress: AddressDocument = await createNewAddress(address)
-
   const newUser = await UserService.create({
     name: name,
     email: email,
@@ -46,7 +42,7 @@ export const createNewUser = asyncHandler(async (req, res) => {
     picture: picture,
     registeredSince: new Date(),
     rating: -1,
-    address_id: newAddress._id,
+    address: address,
     user_type: convertUserType(user_type),
   })
 

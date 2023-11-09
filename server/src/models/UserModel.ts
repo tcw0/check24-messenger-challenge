@@ -37,7 +37,7 @@ const UserSchema = new Schema({
   },
   registeredSince: { type: Schema.Types.Date, required: true },
   rating: { type: Schema.Types.Number, required: true },
-  address_id: { type: Schema.Types.ObjectId, required: true, ref: "Address" },
+  address: { type: Schema.Types.String, required: true },
   user_type: {
     type: Schema.Types.String,
     enum: Object.values(UserTypeEnum),
