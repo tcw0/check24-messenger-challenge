@@ -77,3 +77,29 @@ export const authUser = asyncHandler(async (req, res) => {
     token: generateToken(user._id),
   })
 })
+
+interface User {
+  id: string
+}
+
+export const getServiceProvider = asyncHandler(async (req, res) => {
+  const keyword = req.query.search
+    ? {
+        $and: [
+          { user_type: UserTypeEnum.SERVICEPROVIDER },
+          {
+            $or: [
+              { name: { $regex: req.query.search, $options: "i" } },
+              { email: { $regex: req.query.search, $options: "i" } },
+            ],
+          },
+        ],
+      }
+    : {}
+
+  const service_providers = await UserService.find(keyword).find({
+    _id: { $ne: (req.user as User).id },
+  })
+
+  res.send(service_providers)
+})
