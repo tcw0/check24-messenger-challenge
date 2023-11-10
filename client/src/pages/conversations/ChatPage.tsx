@@ -12,7 +12,7 @@ function ChatPage() {
         <Box
           sx={{
             height: "100%",
-            width: `calc(100vw - 740px )`,
+            width: `calc(100vw - 390px )`,
             backgroundColor:
               theme.palette.mode === "light"
                 ? "#FFF"
