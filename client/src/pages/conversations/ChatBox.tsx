@@ -7,12 +7,7 @@ const ChatBox = ({
   fetchAgain: boolean
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
-  return (
-    <>
-      ChatBox {fetchAgain}
-      {setFetchAgain(!fetchAgain)}
-    </>
-  )
+  return <>ChatBox {fetchAgain} {setFetchAgain(true)}</>
 }
 
 export default ChatBox

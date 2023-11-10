@@ -1,4 +1,5 @@
 import React, { useState, FormEvent } from "react"
+import { useNavigate } from "react-router-dom"
 
 import {
   IconButton,
@@ -11,6 +12,7 @@ import {
   ListItem,
   ListItemButton,
   CircularProgress,
+  Tooltip,
 } from "@mui/material"
 import { styled, alpha } from "@mui/material/styles"
 
@@ -23,7 +25,6 @@ import axios from "axios"
 import ChatLoading from "../../components/ChatLoading"
 import { UserDto } from "../../types/UserDto"
 import UserListItem from "../../components/UserListItem"
-import { useSearchParams } from "react-router-dom"
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -64,7 +65,7 @@ function SideDrawer() {
   const snackbarContext = React.useContext(SnackbarContext)
   const authContext = React.useContext(AuthContext)
   const theme = useTheme()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
 
   const handleSearch = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -111,14 +112,12 @@ function SideDrawer() {
           Authorization: `Bearer ${authContext.authToken}`,
         },
       }
-      console.log("Send ", userId)
-      const { data } = await axios.post(`/api/conversations`, { userId }, config)
+      await axios.post(`/api/conversations`, { userId }, config)
 
-      searchParams.set("id", data.id)
-      setSearchParams(searchParams)
       setOpenDrawer(false)
       setSearch("")
       setSearchResults([])
+      navigate(0)
     } catch (error) {
       snackbarContext.showSnackBarWithError(error)
     }
@@ -127,15 +126,17 @@ function SideDrawer() {
 
   return (
     <>
-      <IconButton
-        sx={{
-          width: "max-content",
-          color: theme.palette.text.primary,
-        }}
-        onClick={() => setOpenDrawer((val) => !val)}
-      >
-        <SearchIcon sx={{ height: 40, width: 40 }} />
-      </IconButton>
+      <Tooltip title="Create chat" placement="right">
+        <IconButton
+          sx={{
+            width: "max-content",
+            color: theme.palette.text.primary,
+          }}
+          onClick={() => setOpenDrawer((val) => !val)}
+        >
+          <SearchIcon sx={{ height: 40, width: 40 }} />
+        </IconButton>
+      </Tooltip>
 
       <Drawer open={openDrawer} onClose={() => setOpenDrawer((val) => !val)}>
         <Stack p={3} spacing={2} sx={{ maxHeight: "100vh" }}>
