@@ -28,7 +28,7 @@ function ConversationList({
   const snackbarContext = React.useContext(SnackbarContext)
   const authContext = React.useContext(AuthContext)
 
-  const fetchChats = async () => {
+  const fetchConversations = async () => {
     try {
       const config = {
         headers: {
@@ -49,7 +49,7 @@ function ConversationList({
   }
 
   React.useEffect(() => {
-    fetchChats()
+    fetchConversations()
     // eslint-disable-next-line
   }, [fetchAgain])
 

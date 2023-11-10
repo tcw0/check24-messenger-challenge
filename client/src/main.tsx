@@ -9,19 +9,22 @@ import "./index.css"
 import { SnackbarContextProvider } from "./contexts/SnackbarContext/SnackbarContextProvider"
 import { AuthContextProvider } from "./contexts/AuthContext/AuthContextProvider"
 import { ResponsiveContextProvider } from "./contexts/ResponsiveContext/ResponsiveContextProvider.tsx"
+import { ConversationContextProvider } from "./contexts/ChatContext/ConversationContextProvider.tsx"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthContextProvider>
       <ResponsiveContextProvider>
-        <ThemeProvider theme={theme}>
-          <SnackbarContextProvider>
-            <BrowserRouter>
-              <CssBaseline />
-              <App />
-            </BrowserRouter>
-          </SnackbarContextProvider>
-        </ThemeProvider>
+        <ConversationContextProvider>
+          <ThemeProvider theme={theme}>
+            <SnackbarContextProvider>
+              <BrowserRouter>
+                <CssBaseline />
+                <App />
+              </BrowserRouter>
+            </SnackbarContextProvider>
+          </ThemeProvider>
+        </ConversationContextProvider>
       </ResponsiveContextProvider>
     </AuthContextProvider>
   </React.StrictMode>
