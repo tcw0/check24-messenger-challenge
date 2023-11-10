@@ -3,7 +3,7 @@ import axios from "axios"
 import { useNavigate } from "react-router-dom"
 
 // mui components
-import { Link, TextField, Box, Tab } from "@mui/material"
+import { TextField, Box, Tab, Typography } from "@mui/material"
 import { TabContext, TabList, LoadingButton } from "@mui/lab"
 
 // references
@@ -66,7 +66,7 @@ export default function Signup({ handleClose }: { handleClose: () => void }) {
         data.id,
         data.name,
         data.picture,
-        true, 
+        true,
         data.user_type
       )
       handleClose()
@@ -233,19 +233,31 @@ export default function Signup({ handleClose }: { handleClose: () => void }) {
           }}
         />
       )}
-      <LoadingButton color="secondary" component="label" loading={loading}>
-        Upload Photo
-        <input
-          type="file"
-          accept=".png, .jpg, .jpeg, .gif"
-          style={{ display: "none" }}
-          onChange={handleUploadProfilePicture}
-        />
-      </LoadingButton>
+      <Box
+        display="flex"
+        justifyContent="start"
+        alignItems="center"
+        mt={1}
+      >
+        <LoadingButton
+          variant="contained"
+          color="secondary"
+          component="label"
+          loading={loading}
+        >
+          Upload Profile Picture
+          <input
+            type="file"
+            accept=".png, .jpg, .jpeg, .gif"
+            style={{ display: "none" }}
+            onChange={handleUploadProfilePicture}
+          />
+        </LoadingButton>
+        {picture && (
+          <Typography textAlign="center" marginLeft={2}>Upload successful!</Typography>
+        )}
+      </Box>
 
-      <Link href="/" variant="body2">
-        Privacy Policy
-      </Link>
       <LoadingButton
         type="submit"
         fullWidth
