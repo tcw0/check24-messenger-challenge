@@ -1,16 +1,16 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-if git diff --cached --name-only | grep --quiet "^client"
-then
-  cd client
-  npm run lint
-  cd ..
-fi
+lint_staged_files() {
+  local dir="$1"
+  local files=$(git diff --staged --name-only -- "$dir" | grep '\.js$')
+  
+  if [ -n "$files" ]; then
+    cd "$dir"
+    npm run lint
+    cd ..
+  fi
+}
 
-if git diff --cached --name-only | grep --quiet "^server"
-then
-  cd server
-  npm run lint
-  cd ..
-fi
+lint_staged_files "client"
+lint_staged_files "server"
