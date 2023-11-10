@@ -18,7 +18,7 @@ const Loadable =
   <P extends object>(Component: LazyExoticComponent<ComponentType<P>>) =>
   (props: PropsWithoutRef<P>) => {
     return (
-      <Suspense fallback={<LoadingScreen />}>
+      <Suspense fallback={<LoadingScreen open={true} />}>
         <Component {...props} />
       </Suspense>
     )
