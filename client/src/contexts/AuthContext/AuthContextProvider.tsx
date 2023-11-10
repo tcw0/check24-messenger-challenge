@@ -47,6 +47,13 @@ export function AuthContextProvider(props: { children: React.ReactNode }) {
     }
   }, [userPicture])
 
+  useEffect(() => {
+    const userType = Cookies.get("userType")
+    if (userType) {
+      setUserPicture(userType)
+    }
+  }, [userType])
+
   const login = (
     authToken: string | undefined,
     userId: string | undefined,
