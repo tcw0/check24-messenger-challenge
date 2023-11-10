@@ -65,7 +65,7 @@ const SideNav = () => {
               />
               {authContext.userType === "customer" && <SideDrawer />}
             </Stack>
-            <Stack spacing={4}>
+            <Stack spacing={4} alignItems="center">
               <Divider sx={{ width: 55 }} />
               <IconButton
                 onClick={handleLogout}
@@ -80,6 +80,7 @@ const SideNav = () => {
                 alt={authContext.userName}
                 src={authContext.userPicture}
                 variant="circular"
+                sx={{ height: 56, width: 56 }}
               />
             </Stack>
           </Stack>
