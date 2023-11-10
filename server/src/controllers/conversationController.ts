@@ -5,6 +5,7 @@ import {
   ConversationStateEnum,
 } from "../models/ConversationModel"
 import { UserService } from "../models/UserModel"
+import { MessageService } from "../models/MessageModel"
 
 interface User {
   id: string
@@ -23,7 +24,21 @@ export const getConversations = asyncHandler(async (req, res) => {
       .populate("latest_message")
       .sort({ updated_at: -1 })
 
-    res.send(conversations)
+    const conversationsWithUnreadCount = await Promise.all(
+      conversations.map(async (conversation) => {
+        const unreadMessagesCount = await MessageService.countDocuments({
+          conversation_id: conversation._id,
+          read_at: { $exists: false },
+        })
+        return {
+          ...conversation.toObject(),
+          unreadMessagesCount,
+        }
+      })
+    )
+
+    res.send(conversationsWithUnreadCount)
+    // res.send(conversations)
   } catch (error) {
     res.status(400).send()
     console.log(error)
