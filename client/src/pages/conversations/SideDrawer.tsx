@@ -7,15 +7,23 @@ import {
   Stack,
   InputBase,
   Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  CircularProgress,
 } from "@mui/material"
 import { styled, alpha } from "@mui/material/styles"
 
 import SearchIcon from "@mui/icons-material/Search"
 import SendIcon from "@mui/icons-material/Send"
 
-// import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
-// import { AuthContext } from "../../contexts/AuthContext/AuthContext"
-// import axios from "axios"
+import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
+import { AuthContext } from "../../contexts/AuthContext/AuthContext"
+import axios from "axios"
+import ChatLoading from "../../components/ChatLoading"
+import { UserDto } from "../../types/UserDto"
+import UserListItem from "../../components/UserListItem"
+import { useSearchParams } from "react-router-dom"
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -48,48 +56,73 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 function SideDrawer() {
   const [search, setSearch] = useState("")
-  // const [searchResults, setSearchResults] = useState([])
-  // const [loading, setLoading] = useState(false)
-  // const [loadingChat, setLoadingChat] = useState()
+  const [searchResults, setSearchResults] = useState<UserDto[] | undefined>([])
+  const [loading, setLoading] = useState(false)
+  const [loadingChat, setLoadingChat] = useState(false)
   const [openDrawer, setOpenDrawer] = useState(false)
 
-  // const snackbarContext = React.useContext(SnackbarContext)
-  // const authContext = React.useContext(AuthContext)
+  const snackbarContext = React.useContext(SnackbarContext)
+  const authContext = React.useContext(AuthContext)
   const theme = useTheme()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const handleSearch = async (event: FormEvent<HTMLFormElement>) => {
-    // event.preventDefault()
-    // if (!search) {
-    //   snackbarContext.showSnackBarWithMessage(
-    //     "Please Enter something in search",
-    //     "warning"
-    //   )
-    //   return
-    // }
-    // try {
-    //   setLoading(true)
-    //   if (!authContext.authToken) {
-    //     snackbarContext.showSnackBarWithMessage(
-    //       "Please Login to Search",
-    //       "warning"
-    //     )
-    //     return
-    //   }
-    //   const config = {
-    //     headers: {
-    //       Authorization: `Bearer ${authContext.authToken}`,
-    //     },
-    //   }
-    //   const { data } = await axios.get(
-    //     `/api/user/serviceprovider?search=${search}`,
-    //     config
-    //   )
-    //   console.log("Get successful", data)
-    //   setSearchResults(data)
-    // } catch (error) {
-    //   snackbarContext.showSnackBarWithError(error)
-    // }
-    // setLoading(false)
+    event.preventDefault()
+    if (!search) {
+      snackbarContext.showSnackBarWithMessage(
+        "Please Enter something in search",
+        "warning"
+      )
+      return
+    }
+    try {
+      setLoading(true)
+      if (!authContext.authToken) {
+        snackbarContext.showSnackBarWithMessage(
+          "Please Login to Search",
+          "warning"
+        )
+        return
+      }
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${authContext.authToken}`,
+        },
+      }
+      const { data } = await axios.get(
+        `/api/user/serviceprovider?search=${search}`,
+        config
+      )
+      console.log("Get successful", data)
+      setSearchResults(data)
+    } catch (error) {
+      snackbarContext.showSnackBarWithError(error)
+    }
+    setLoading(false)
+  }
+
+  const handleUserClick = async (userId: string) => {
+    try {
+      setLoadingChat(true)
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${authContext.authToken}`,
+        },
+      }
+      console.log("Send ", userId)
+      const { data } = await axios.post(`/api/conversations`, { userId }, config)
+
+      searchParams.set("id", data.id)
+      setSearchParams(searchParams)
+      setOpenDrawer(false)
+      setSearch("")
+      setSearchResults([])
+    } catch (error) {
+      snackbarContext.showSnackBarWithError(error)
+    }
+    setLoadingChat(false)
   }
 
   return (
@@ -134,6 +167,32 @@ function SideDrawer() {
               <SendIcon />
             </IconButton>
           </Stack>
+          {loading ? (
+            <ChatLoading />
+          ) : searchResults && searchResults.length > 0 ? (
+            <List
+              sx={{
+                width: "100%",
+                overflowY: "auto",
+                height: "100%",
+              }}
+              disablePadding
+            >
+              {searchResults?.map((user) => (
+                <ListItem key={user._id} sx={{ padding: 0 }}>
+                  <ListItemButton
+                    onClick={() => handleUserClick(user._id)}
+                    sx={{ padding: 1, py: 2 }}
+                  >
+                    <UserListItem user={user} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography>No Results Found</Typography>
+          )}
+          {loadingChat && <CircularProgress color="primary" />}
         </Stack>
       </Drawer>
     </>

@@ -1,38 +1,20 @@
-import React, { useState } from "react"
+// import React, { useState } from "react"
 
-import { Box, Link, Stack, Typography, useTheme } from "@mui/material"
+import { Box, Stack, Typography, useTheme } from "@mui/material"
 import ConversationList from "./ConversationList"
 import ChatBox from "./ChatBox"
-import SideDrawer from "./SideDrawer"
 import NoChat from "../../components/NoChat"
-import { useParams, useSearchParams } from "react-router-dom"
-
-export enum ConversationStateEnum {
-  QUOTED = "quoted",
-  ACCEPTED = "accepted",
-  REJECTED = "rejected",
-}
-
-export type ConversationDto = {
-  customer_name: string
-  service_provider_name: string
-  state: ConversationStateEnum
-  created_at: Date
-  updated_at: Date
-  deleted_at?: Date
-  latest_message?: string
-  customer_id: string
-  service_provider_id: string
-}
+import { useSearchParams } from "react-router-dom"
+// import { ConversationDto } from "../../types/ConversationDto"
 
 function ChatPage() {
   const theme = useTheme()
 
   const conversationId = useSearchParams()[0].get("id")
 
-  const [currentConversation, setCurrentConversation] = useState<
-    ConversationDto | undefined
-  >(undefined)
+//   const [currentConversation, setCurrentConversation] = useState<
+//     ConversationDto | undefined
+//   >(undefined)
 
   return (
     <>

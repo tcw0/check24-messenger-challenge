@@ -6,7 +6,7 @@ const truncateText = (string: string, n: number) => {
   return string?.length > n ? `${string?.slice(0, n)}...` : string
 }
 
-const StyledChatBox = styled(Box)(({ theme }) => ({
+const StyledChatBox = styled(Box)(() => ({
   "&:hover": {
     cursor: "pointer",
   },

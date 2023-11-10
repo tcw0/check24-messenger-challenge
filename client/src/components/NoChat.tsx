@@ -4,7 +4,7 @@ import { useTheme } from "@mui/material/styles"
 import { Box } from "@mui/material"
 
 // ----------------------------------------------------------------------
-
+//eslint-disable-next-line react-refresh/only-export-components
 function NoChat({ ...other }) {
   const theme = useTheme()
 
@@ -330,4 +330,5 @@ function NoChat({ ...other }) {
   )
 }
 
+//eslint-disable-next-line react-refresh/only-export-components
 export default memo(NoChat)

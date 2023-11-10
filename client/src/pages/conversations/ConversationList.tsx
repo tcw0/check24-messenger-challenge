@@ -1,58 +1,21 @@
 import "./styles.css"
-import React, { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import {
   Box,
-  Link,
   Stack,
   Typography,
-  useTheme,
-  IconButton,
-  InputBase,
   List,
   ListItem,
   ListItemButton,
   Divider,
 } from "@mui/material"
-import { styled, alpha } from "@mui/material/styles"
-import SearchIcon from "@mui/icons-material/Search"
 import ChatElement from "../../components/ChatElement"
-
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: 20,
-  backgroundColor: alpha(theme.palette.background.paper, 1),
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: "100%",
-}))
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}))
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    width: "100%",
-  },
-}))
 
 function ConversationList({
   selectedConversationId,
 }: {
   selectedConversationId?: string
 }) {
-  const [conversations, setConversations] = useState([
+  const conversations = [
     {
       id: "1",
       img: "https://source.unsplash.com/random",
@@ -109,7 +72,7 @@ function ConversationList({
       time: "10:00",
       unread: 1,
     },
-  ])
+  ]
 
   // const navigate = useNavigate()
 
@@ -142,8 +105,8 @@ function ConversationList({
         >
           {conversations.map((conversation) => {
             return (
-              <>
-                <ListItem key={conversation.id} sx={{ padding: 0 }}>
+              <Box key={conversation.id}>
+                <ListItem sx={{ padding: 0 }}>
                   <ListItemButton
                     sx={{ padding: 1, py: 2 }}
                     selected={selectedConversationId === conversation.id}
@@ -152,7 +115,7 @@ function ConversationList({
                   </ListItemButton>
                 </ListItem>
                 <Divider />
-              </>
+              </Box>
             )
           })}
         </List>
