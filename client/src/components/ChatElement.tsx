@@ -58,14 +58,6 @@ export default function ChatElement({
     }
   }
 
-  const message = () => {
-    if (conversation.latest_message) {
-      return conversation.latest_message.text
-    } else {
-      return ""
-    }
-  }
-
   const date = () => {
     if (conversation.latest_message) {
       return conversation.latest_message.updated_at
@@ -92,10 +84,18 @@ export default function ChatElement({
           {" "}
           <Avatar alt={name()} src={picture()} />
           <Stack spacing={0.3}>
-            <Typography variant="subtitle2">{name()}</Typography>
-            <Typography variant="caption">
-              {truncateText(message(), 20)}
+            <Typography variant="subtitle2" fontWeight="bold">
+              {name()}
             </Typography>
+            {conversation.latest_message ? (
+              <Typography variant="caption">
+                {truncateText(conversation.latest_message.text, 20)}
+              </Typography>
+            ) : (
+              <Typography variant="caption" color="grey">
+                {"<No messages yet>"}
+              </Typography>
+            )}
           </Stack>
         </Stack>
         <Stack spacing={2} alignItems={"center"}>

@@ -7,7 +7,6 @@ export type UserDto = {
   _id: string
   name: string
   email: string
-  password: string
   phone: string
   url?: string
   picture: string

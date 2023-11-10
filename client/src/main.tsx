@@ -9,7 +9,7 @@ import "./index.css"
 import { SnackbarContextProvider } from "./contexts/SnackbarContext/SnackbarContextProvider"
 import { AuthContextProvider } from "./contexts/AuthContext/AuthContextProvider"
 import { ResponsiveContextProvider } from "./contexts/ResponsiveContext/ResponsiveContextProvider.tsx"
-import { ConversationContextProvider } from "./contexts/ChatContext/ConversationContextProvider.tsx"
+import { ConversationContextProvider } from "./contexts/ConversationContext/ConversationContextProvider.tsx"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

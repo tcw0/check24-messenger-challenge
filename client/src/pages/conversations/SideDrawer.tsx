@@ -24,7 +24,7 @@ import axios from "axios"
 import ChatLoading from "../../components/ChatLoading"
 import { UserDto } from "../../types/UserDto"
 import UserListItem from "../../components/UserListItem"
-import { ConversationContext } from "../../contexts/ChatContext/ConversationContext"
+import { ConversationContext } from "../../contexts/ConversationContext/ConversationContext"
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",

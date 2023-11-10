@@ -13,7 +13,7 @@ import {
 
 import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
 import { AuthContext } from "../../contexts/AuthContext/AuthContext"
-import { ConversationContext } from "../../contexts/ChatContext/ConversationContext"
+import { ConversationContext } from "../../contexts/ConversationContext/ConversationContext"
 import ChatElement from "../../components/ChatElement"
 import ChatLoading from "../../components/ChatLoading"
 
@@ -55,7 +55,7 @@ function ConversationList() {
       }}
     >
       <Stack spacing={2} sx={{ maxHeight: "100vh" }}>
-        <Typography variant="h5" px={3} py={3}>
+        <Typography variant="h5" px={3} py={3} maxHeight="80px" fontWeight="bold">
           Conversations
         </Typography>
         <Divider />
