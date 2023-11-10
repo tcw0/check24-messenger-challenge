@@ -1,5 +1,4 @@
 import React, { useState, FormEvent } from "react"
-import { useNavigate } from "react-router-dom"
 
 import {
   IconButton,
@@ -25,6 +24,7 @@ import axios from "axios"
 import ChatLoading from "../../components/ChatLoading"
 import { UserDto } from "../../types/UserDto"
 import UserListItem from "../../components/UserListItem"
+import { ConversationContext } from "../../contexts/ChatContext/ConversationContext"
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -64,8 +64,8 @@ function SideDrawer() {
 
   const snackbarContext = React.useContext(SnackbarContext)
   const authContext = React.useContext(AuthContext)
+  const conversationContext = React.useContext(ConversationContext)
   const theme = useTheme()
-  const navigate = useNavigate()
 
   const handleSearch = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -117,7 +117,7 @@ function SideDrawer() {
       setOpenDrawer(false)
       setSearch("")
       setSearchResults([])
-      navigate(0)
+      conversationContext.setFetchConversations((val) => !val)
     } catch (error) {
       snackbarContext.showSnackBarWithError(error)
     }

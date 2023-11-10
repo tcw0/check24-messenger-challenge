@@ -1,68 +1,81 @@
 import { Box, Badge, Stack, Avatar, Typography } from "@mui/material"
-import { styled } from "@mui/material/styles"
-import { useSearchParams } from "react-router-dom"
+import React from "react"
+import { ConversationDto } from "../types/ConversationDto"
+import { AuthContext } from "../contexts/AuthContext/AuthContext"
 
 const truncateText = (string: string, n: number) => {
   return string?.length > n ? `${string?.slice(0, n)}...` : string
 }
 
-const StyledChatBox = styled(Box)(() => ({
-  "&:hover": {
-    cursor: "pointer",
-  },
-}))
+function formatDate(date: Date): string {
+  const now = new Date()
+  const oneDay = 24 * 60 * 60 * 1000 // milliseconds in a day
+  const oneWeek = 7 * oneDay // milliseconds in a week
+
+  const isSameDay = now.toDateString() === date.toDateString()
+  const isYesterday = now.getTime() - date.getTime() < oneDay && !isSameDay
+  const isWithinOneWeek = now.getTime() - date.getTime() < oneWeek
+
+  if (isSameDay) {
+    // Today
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  } else if (isYesterday) {
+    // Yesterday
+    return "Yesterday"
+  } else if (isWithinOneWeek) {
+    // Within the last week
+    return date.toLocaleDateString("en-US", { weekday: "short" })
+  } else {
+    // Over a week ago
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  }
+}
 
 export default function ChatElement({
-  id,
-  img,
-  name,
-  msg,
-  date,
-  unread,
+  conversation,
 }: {
-  id: string
-  img: string
-  name: string
-  msg: string
-  date: Date
-  unread: number
+  conversation: ConversationDto
 }) {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const authContext = React.useContext(AuthContext)
 
-  function formatDate(date: Date): string {
-    const now = new Date()
-    const oneDay = 24 * 60 * 60 * 1000 // milliseconds in a day
-    const oneWeek = 7 * oneDay // milliseconds in a week
-
-    const isSameDay = now.toDateString() === date.toDateString()
-    const isYesterday = now.getTime() - date.getTime() < oneDay && !isSameDay
-    const isWithinOneWeek = now.getTime() - date.getTime() < oneWeek
-
-    if (isSameDay) {
-      // Today
-      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    } else if (isYesterday) {
-      // Yesterday
-      return "Yesterday"
-    } else if (isWithinOneWeek) {
-      // Within the last week
-      return date.toLocaleDateString("en-US", { weekday: "short" })
+  const name = () => {
+    if (authContext.userType === "customer") {
+      return conversation.service_provider_name
     } else {
-      // Over a week ago
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
+      return conversation.customer_name
+    }
+  }
+
+  const picture = () => {
+    if (authContext.userType === "customer") {
+      return conversation.service_provider_id.picture
+    } else {
+      return conversation.customer_id.picture
+    }
+  }
+
+  const message = () => {
+    if (conversation.latest_message) {
+      return conversation.latest_message.text
+    } else {
+      return ""
+    }
+  }
+
+  const date = () => {
+    if (conversation.latest_message) {
+      return conversation.latest_message.updated_at
+    } else {
+      return new Date(conversation.created_at)
     }
   }
 
   return (
-    <StyledChatBox
-      onClick={() => {
-        searchParams.set("id", id)
-        setSearchParams(searchParams)
-      }}
+    <Box
       sx={{
         width: "100%",
 
@@ -77,23 +90,25 @@ export default function ChatElement({
       >
         <Stack direction="row" spacing={2}>
           {" "}
-          <Avatar alt={name} src={img} />
+          <Avatar alt={name()} src={picture()} />
           <Stack spacing={0.3}>
-            <Typography variant="subtitle2">{name}</Typography>
-            <Typography variant="caption">{truncateText(msg, 20)}</Typography>
+            <Typography variant="subtitle2">{name()}</Typography>
+            <Typography variant="caption">
+              {truncateText(message(), 20)}
+            </Typography>
           </Stack>
         </Stack>
         <Stack spacing={2} alignItems={"center"}>
           <Typography sx={{ fontWeight: 600 }} variant="caption">
-            {formatDate(date)}
+            {formatDate(date())}
           </Typography>
           <Badge
             className="unread-count"
             color="primary"
-            badgeContent={unread}
+            badgeContent={conversation.unread_messages}
           />
         </Stack>
       </Stack>
-    </StyledChatBox>
+    </Box>
   )
 }

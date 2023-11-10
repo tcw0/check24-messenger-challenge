@@ -10,6 +10,8 @@ type ConversationContextType = {
   // setNotification:
   conversations: ConversationDto[]
   setConversations: React.Dispatch<React.SetStateAction<ConversationDto[]>>
+  fetchConversations: boolean
+  setFetchConversations: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const ConversationContext = React.createContext<ConversationContextType>(
@@ -20,5 +22,7 @@ export const ConversationContext = React.createContext<ConversationContextType>(
     // setNotification:
     conversations: [],
     setConversations: () => {},
+    fetchConversations: false,
+    setFetchConversations: () => {},
   }
 )

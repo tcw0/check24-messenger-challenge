@@ -14,6 +14,7 @@ export function ConversationContextProvider(props: {
   const [conversations, setConversations] = React.useState<ConversationDto[]>(
     []
   )
+  const [fetchConversations, setFetchConversations] = React.useState(false)
 
   const value = React.useMemo(() => {
     return {
@@ -23,14 +24,15 @@ export function ConversationContextProvider(props: {
       //   setNotification,
       conversations,
       setConversations,
+      fetchConversations,
+      setFetchConversations,
     }
   }, [
     selectedConversation,
-    setSelectedConversation,
     // notification,
     // setNotification,
     conversations,
-    setConversations,
+    fetchConversations,
   ])
 
   return (

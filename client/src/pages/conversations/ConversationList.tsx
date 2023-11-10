@@ -1,5 +1,5 @@
 import "./styles.css"
-import React, { useState } from "react"
+import React from "react"
 import axios from "axios"
 import {
   Box,
@@ -13,20 +13,14 @@ import {
 
 import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
 import { AuthContext } from "../../contexts/AuthContext/AuthContext"
+import { ConversationContext } from "../../contexts/ChatContext/ConversationContext"
 import ChatElement from "../../components/ChatElement"
-import { ConversationDto } from "../../types/ConversationDto"
+import ChatLoading from "../../components/ChatLoading"
 
-function ConversationList({
-  selectedConversationId,
-  fetchAgain,
-}: {
-  selectedConversationId?: string
-  fetchAgain: boolean
-}) {
-  const [conversations, setConversations] = useState<ConversationDto[]>([])
-
+function ConversationList() {
   const snackbarContext = React.useContext(SnackbarContext)
   const authContext = React.useContext(AuthContext)
+  const conversationContext = React.useContext(ConversationContext)
 
   const fetchConversations = async () => {
     try {
@@ -37,12 +31,9 @@ function ConversationList({
         },
       }
 
-      console.log("Fetching chats")
-
       const { data } = await axios.get("/api/conversations", config)
 
-      console.log("Get successful", data)
-      setConversations(data)
+      conversationContext.setConversations(data)
     } catch (error) {
       snackbarContext.showSnackBarWithError(error)
     }
@@ -51,7 +42,7 @@ function ConversationList({
   React.useEffect(() => {
     fetchConversations()
     // eslint-disable-next-line
-  }, [fetchAgain])
+  }, [conversationContext.fetchConversations])
 
   return (
     <Box
@@ -68,64 +59,54 @@ function ConversationList({
           Conversations
         </Typography>
         <Divider />
-        <List
-          sx={{
-            width: "100%",
-            overflowY: "auto",
-            height: "100%",
-          }}
-          disablePadding
-        >
-          {conversations.map((conversation) => {
-            return (
-              <Box key={conversation._id}>
-                <ListItem
-                  sx={{
-                    padding: 0,
-                    backgroundColor:
-                      selectedConversationId === conversation._id
-                        ? "#DDE8F6"
-                        : "#F8FAFF",
-                  }}
-                >
-                  <ListItemButton
+        {conversationContext.conversations ? (
+          <List
+            sx={{
+              width: "100%",
+              overflowY: "auto",
+              height: "100%",
+            }}
+            disablePadding
+          >
+            {conversationContext.conversations.map((conversation) => {
+              return (
+                <Box key={conversation._id}>
+                  <ListItem
                     sx={{
-                      padding: 1,
-                      py: 2,
+                      padding: 0,
+                      backgroundColor:
+                        conversationContext.selectedConversation?._id ===
+                        conversation._id
+                          ? "#DDE8F6"
+                          : "#F8FAFF",
                     }}
-                    selected={selectedConversationId === conversation._id}
                   >
-                    <ChatElement
-                      id={conversation._id}
-                      img={
-                        authContext.userType === "customer"
-                          ? conversation.service_provider_id.picture
-                          : conversation.customer_id.picture
+                    <ListItemButton
+                      sx={{
+                        padding: 1,
+                        py: 2,
+                      }}
+                      selected={
+                        conversationContext.selectedConversation?._id ===
+                        conversation._id
                       }
-                      name={
-                        authContext.userType === "customer"
-                          ? conversation.service_provider_name
-                          : conversation.customer_name
-                      }
-                      msg={
-                        conversation.latest_message
-                          ? conversation.latest_message.text
-                          : ""
-                      }
-                      date={
-                        conversation.latest_message
-                          ? conversation.latest_message.updated_at
-                          : new Date(conversation.created_at)
-                      }
-                      unread={conversation.unread_messages}
-                    />
-                  </ListItemButton>
-                </ListItem>
-                <Divider />
-              </Box>
-            )
-          })}
-        </List>
+                      onClick={() => {
+                        conversationContext.setSelectedConversation(
+                          conversation
+                        )
+                      }}
+                    >
+                      <ChatElement conversation={conversation} />
+                    </ListItemButton>
+                  </ListItem>
+                  <Divider />
+                </Box>
+              )
+            })}
+          </List>
+        ) : (
+          <ChatLoading />
+        )}
       </Stack>
     </Box>
   )
