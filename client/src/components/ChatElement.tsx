@@ -17,17 +17,45 @@ export default function ChatElement({
   img,
   name,
   msg,
-  time,
+  date,
   unread,
 }: {
   id: string
   img: string
   name: string
   msg: string
-  time: string
+  date: Date
   unread: number
 }) {
   const [searchParams, setSearchParams] = useSearchParams()
+
+  function formatDate(date: Date): string {
+    const now = new Date()
+    const oneDay = 24 * 60 * 60 * 1000 // milliseconds in a day
+    const oneWeek = 7 * oneDay // milliseconds in a week
+
+    const isSameDay = now.toDateString() === date.toDateString()
+    const isYesterday = now.getTime() - date.getTime() < oneDay && !isSameDay
+    const isWithinOneWeek = now.getTime() - date.getTime() < oneWeek
+
+    if (isSameDay) {
+      // Today
+      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    } else if (isYesterday) {
+      // Yesterday
+      return "Yesterday"
+    } else if (isWithinOneWeek) {
+      // Within the last week
+      return date.toLocaleDateString("en-US", { weekday: "short" })
+    } else {
+      // Over a week ago
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    }
+  }
 
   return (
     <StyledChatBox
@@ -57,7 +85,7 @@ export default function ChatElement({
         </Stack>
         <Stack spacing={2} alignItems={"center"}>
           <Typography sx={{ fontWeight: 600 }} variant="caption">
-            {time}
+            {formatDate(date)}
           </Typography>
           <Badge
             className="unread-count"

@@ -1,26 +1,23 @@
-// import React, { useState } from "react"
+import React from "react"
 
 import { Box, Stack, Typography, useTheme } from "@mui/material"
 import ConversationList from "./ConversationList"
 import ChatBox from "./ChatBox"
 import NoChat from "../../components/NoChat"
 import { useSearchParams } from "react-router-dom"
-// import { ConversationDto } from "../../types/ConversationDto"
 
 function ChatPage() {
   const theme = useTheme()
 
   const conversationId = useSearchParams()[0].get("id")
-
-//   const [currentConversation, setCurrentConversation] = useState<
-//     ConversationDto | undefined
-//   >(undefined)
+  const [fetchAgain, setFetchAgain] = React.useState(false)
 
   return (
     <>
       <Stack direction="row" sx={{ width: "100%" }}>
         <ConversationList
           selectedConversationId={conversationId ? conversationId : undefined}
+          fetchAgain={fetchAgain}
         />
         <Box
           sx={{
@@ -33,7 +30,7 @@ function ChatPage() {
           }}
         >
           {conversationId ? (
-            <ChatBox />
+            <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
           ) : (
             <Stack
               spacing={2}

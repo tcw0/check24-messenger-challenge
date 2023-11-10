@@ -70,7 +70,7 @@ function SideDrawer() {
     event.preventDefault()
     if (!search) {
       snackbarContext.showSnackBarWithMessage(
-        "Please Enter something in search",
+        "Please enter something in search",
         "warning"
       )
       return
@@ -79,7 +79,7 @@ function SideDrawer() {
       setLoading(true)
       if (!authContext.authToken) {
         snackbarContext.showSnackBarWithMessage(
-          "Please Login to Search",
+          "Please log in to search",
           "warning"
         )
         return
