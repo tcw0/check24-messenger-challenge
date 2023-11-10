@@ -50,7 +50,7 @@ export function AuthContextProvider(props: { children: React.ReactNode }) {
   useEffect(() => {
     const userType = Cookies.get("userType")
     if (userType) {
-      setUserPicture(userType)
+      setUserType(userType)
     }
   }, [userType])
 
