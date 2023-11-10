@@ -79,9 +79,20 @@ function ConversationList({
           {conversations.map((conversation) => {
             return (
               <Box key={conversation._id}>
-                <ListItem sx={{ padding: 0 }}>
+                <ListItem
+                  sx={{
+                    padding: 0,
+                    backgroundColor:
+                      selectedConversationId === conversation._id
+                        ? "#DDE8F6"
+                        : "#F8FAFF",
+                  }}
+                >
                   <ListItemButton
-                    sx={{ padding: 1, py: 2 }}
+                    sx={{
+                      padding: 1,
+                      py: 2,
+                    }}
                     selected={selectedConversationId === conversation._id}
                   >
                     <ChatElement

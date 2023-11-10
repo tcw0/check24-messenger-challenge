@@ -9,6 +9,7 @@ import {
   IconButton,
   Avatar,
   Divider,
+  Tooltip,
 } from "@mui/material"
 import LogoutIcon from "@mui/icons-material/Logout"
 
@@ -67,15 +68,17 @@ const SideNav = () => {
             </Stack>
             <Stack spacing={4} alignItems="center">
               <Divider sx={{ width: 55 }} />
-              <IconButton
-                onClick={handleLogout}
-                sx={{
-                  width: "max-content",
-                  color: theme.palette.text.primary,
-                }}
-              >
-                <LogoutIcon sx={{ height: 40, width: 40 }} />
-              </IconButton>
+              <Tooltip title="Logout" placement="right">
+                <IconButton
+                  onClick={handleLogout}
+                  sx={{
+                    width: "max-content",
+                    color: theme.palette.text.primary,
+                  }}
+                >
+                  <LogoutIcon sx={{ height: 40, width: 40 }} />
+                </IconButton>
+              </Tooltip>
               <Avatar
                 alt={authContext.userName}
                 src={authContext.userPicture}
