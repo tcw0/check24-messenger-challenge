@@ -55,7 +55,13 @@ function ConversationList() {
       }}
     >
       <Stack spacing={2} sx={{ maxHeight: "100vh" }}>
-        <Typography variant="h5" px={3} py={3} maxHeight="80px" fontWeight="bold">
+        <Typography
+          variant="h5"
+          px={3}
+          py={3}
+          maxHeight="80px"
+          fontWeight="bold"
+        >
           Conversations
         </Typography>
         <Divider />
