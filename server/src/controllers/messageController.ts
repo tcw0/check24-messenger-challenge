@@ -9,25 +9,6 @@ interface User {
   id: string
 }
 
-export const getUnreadById = asyncHandler(
-  async (req: Request<{ conversationId: mongoose.Types.ObjectId }>, res) => {
-    const { conversationId } = req.params
-
-    try {
-      const unreadMessagesCount = await MessageService.countDocuments({
-        conversation_id: conversationId,
-        read_at: { $exists: false },
-        sender_id: { $ne: (req.user as User).id },
-      })
-
-      res.send(unreadMessagesCount)
-    } catch (error) {
-      res.status(400).send()
-      console.log(error)
-    }
-  }
-)
-
 export const getMessagesByConversationId = asyncHandler(
   async (req: Request<{ conversationId: mongoose.Types.ObjectId }>, res) => {
     const { conversationId } = req.params
@@ -99,3 +80,57 @@ export const postMessage = asyncHandler(async (req, res) => {
     console.log(error)
   }
 })
+
+export const getUnreadById = asyncHandler(
+  async (req: Request<{ conversationId: mongoose.Types.ObjectId }>, res) => {
+    const { conversationId } = req.params
+
+    if (!conversationId) {
+      res.status(400).send()
+      throw new Error("Missing conversation id")
+    }
+
+    try {
+      const unreadMessagesCount = await MessageService.countDocuments({
+        conversation_id: conversationId,
+        read_at: { $exists: false },
+        sender_id: { $ne: (req.user as User).id },
+      })
+
+      res.send(unreadMessagesCount)
+    } catch (error) {
+      res.status(400).send()
+      console.log(error)
+    }
+  }
+)
+
+export const updateUnreadByConversationId = asyncHandler(
+  async (req: Request<{ conversationId: mongoose.Types.ObjectId }>, res) => {
+    const { conversationId } = req.params
+
+    if (!conversationId) {
+      res.status(400).send()
+      throw new Error("Missing conversation id")
+    }
+
+    try {
+      await MessageService.updateMany(
+        {
+          conversation_id: conversationId,
+          sender_id: { $ne: (req.user as User).id },
+        },
+        {
+          $set: {
+            read_at: new Date(),
+          },
+        }
+      )
+
+      res.sendStatus(200)
+    } catch (error) {
+      res.status(400).send()
+      console.log(error)
+    }
+  }
+)
