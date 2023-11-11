@@ -11,6 +11,7 @@ export enum SenderTypeEnum {
 }
 
 export type MessageDto = {
+  _id: string
   conversation_id: string
   message_type: MessageTypeEnum
   text: string

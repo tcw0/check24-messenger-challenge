@@ -1,4 +1,4 @@
-import React from "react"
+import React, { FormEvent } from "react"
 import {
   Box,
   IconButton,
@@ -20,6 +20,11 @@ import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined"
 
 import data from "@emoji-mart/data"
 import Picker from "@emoji-mart/react"
+import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
+import { AuthContext } from "../../contexts/AuthContext/AuthContext"
+import { ConversationContext } from "../../contexts/ConversationContext/ConversationContext"
+import axios from "axios"
+import { MessageDto, MessageTypeEnum } from "../../types/MessageDto"
 
 const StyledInput = styled(TextField)(() => ({
   "& .MuiInputBase-input": {
@@ -52,9 +57,71 @@ const Actions = [
   },
 ]
 
-function ChatFooter() {
+function ChatFooter({
+  messages,
+  setMessages,
+}: {
+  messages: MessageDto[]
+  setMessages: React.Dispatch<React.SetStateAction<MessageDto[]>>
+}) {
   const theme = useTheme()
   const [openPicker, setOpenPicker] = React.useState(false)
+  const [message, setMessage] = React.useState("")
+
+  const snackbarContext = React.useContext(SnackbarContext)
+  const authContext = React.useContext(AuthContext)
+  const conversationContext = React.useContext(ConversationContext)
+
+  const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    console.log("Send message")
+    if (!message) {
+      snackbarContext.showSnackBarWithMessage(
+        "Please enter a message",
+        "warning"
+      )
+      return
+    }
+    try {
+      if (!authContext.authToken) {
+        snackbarContext.showSnackBarWithMessage(
+          "Please log in to send a message",
+          "warning"
+        )
+        return
+      }
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${authContext.authToken}`,
+        },
+      }
+
+      if (!conversationContext.selectedConversation) {
+        snackbarContext.showSnackBarWithMessage(
+          "Please select a conversation to send a message",
+          "warning"
+        )
+        return
+      }
+      setMessage("")
+
+      const { data } = await axios.post(
+        `/api/messages`,
+        {
+          conversationId: conversationContext.selectedConversation._id,
+          text: message,
+          messageType: MessageTypeEnum.STANDARD_MESSAGE,
+        },
+        config
+      )
+      console.log("Get message", data)
+      setMessages([...messages, data])
+      conversationContext.setFetchConversations((val) => !val)
+    } catch (error) {
+      snackbarContext.showSnackBarWithError(error)
+    }
+  }
 
   return (
     <Box
@@ -85,8 +152,11 @@ function ChatFooter() {
               <Picker data={data} onEmojiSelect={console.log} />
             </Box>
             {/* Chat Input */}
-            {/* <ChatInput openPicker={openPicker} setOpenPicker={setOpenPicker} /> */}
             <StyledInput
+              value={message}
+              onChange={(event) => {
+                setMessage(event.target.value)
+              }}
               fullWidth
               placeholder="Write a message..."
               variant="filled"
@@ -103,7 +173,11 @@ function ChatFooter() {
                       }}
                     >
                       {Actions.map((el) => (
-                        <Tooltip placement="right" title={el.title}>
+                        <Tooltip
+                          key={el.title}
+                          placement="right"
+                          title={el.title}
+                        >
                           <Fab
                             onClick={() => {
                               setOpenPicker(!openPicker)
@@ -151,72 +225,6 @@ function ChatFooter() {
                 ),
               }}
             />
-            {/* <TextField
-              id="filled-textarea"
-              placeholder="Placeholder"
-              multiline
-              maxRows={5}
-              variant="filled"
-              sx={{ height: "23px"}}
-              InputProps={{
-                disableUnderline: true,
-                startAdornment: (
-                  <Stack sx={{ width: "max-content" }}>
-                    <Stack
-                      sx={{
-                        position: "relative",
-                        display: openPicker ? "inline-block" : "none",
-                      }}
-                    >
-                      {Actions.map((el) => (
-                        <Tooltip placement="right" title={el.title}>
-                          <Fab
-                            onClick={() => {
-                              setOpenPicker(!openPicker)
-                            }}
-                            sx={{
-                              position: "absolute",
-                              top: -el.y,
-                              backgroundColor: el.color,
-                              "&:hover": {
-                                backgroundColor: theme.palette.secondary.main,
-                              },
-                            }}
-                            aria-label="add"
-                          >
-                            {el.icon}
-                          </Fab>
-                        </Tooltip>
-                      ))}
-                    </Stack>
-
-                    <InputAdornment position="end" sx={{ mt: 0 }}>
-                      <IconButton
-                        onClick={() => {
-                          setOpenPicker(!openPicker)
-                        }}
-                        sx={{ mr: 1 }}
-                      >
-                        <AttachFileOutlinedIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  </Stack>
-                ),
-                endAdornment: (
-                  <Stack sx={{ position: "relative" }}>
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => {
-                          setOpenPicker(!openPicker)
-                        }}
-                      >
-                        <SentimentSatisfiedAltIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  </Stack>
-                ),
-              }}
-            /> */}
           </Stack>
           <Box
             sx={{
@@ -229,9 +237,11 @@ function ChatFooter() {
             <Stack
               sx={{ height: "100%" }}
               alignItems={"center"}
-              justifyContent="center"
+              justifyContent={"center"}
+              component="form"
+              onSubmit={sendMessage}
             >
-              <IconButton>
+              <IconButton disabled={!message} type="submit" color="primary">
                 <SendIcon sx={{ color: "#ffffff" }} />
               </IconButton>
             </Stack>

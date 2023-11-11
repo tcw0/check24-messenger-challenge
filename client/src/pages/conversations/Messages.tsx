@@ -1,8 +1,32 @@
-import React from 'react'
+import React from "react"
+import { MessageDto } from "../../types/MessageDto"
+import { Box, CircularProgress, Typography } from "@mui/material"
 
-function Messages() {
+function Messages({
+  messages,
+  loading,
+}: {
+  messages: MessageDto[]
+  loading: boolean
+}) {
   return (
-    <div>Messages</div>
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      height="100%"
+      width="100%"
+    >
+      {loading ? (
+        <CircularProgress color="inherit" sx={{ alignSelf: "center" }} />
+      ) : (
+        <>
+          {messages.map((message) => (
+            <Typography key={message._id}>{message.text}</Typography>
+          ))}
+        </>
+      )}
+    </Box>
   )
 }
 
