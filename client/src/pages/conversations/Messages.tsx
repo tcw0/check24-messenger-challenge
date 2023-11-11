@@ -1,6 +1,8 @@
 import React from "react"
-import { MessageDto } from "../../types/MessageDto"
-import { Box, CircularProgress, Typography } from "@mui/material"
+import { Box, CircularProgress, Stack } from "@mui/material"
+
+import { MessageDto, MessageTypeEnum } from "../../types/MessageDto"
+import { TextMsg } from "../../components/MessageTypes"
 
 function Messages({
   messages,
@@ -14,17 +16,24 @@ function Messages({
       display="flex"
       alignItems="center"
       justifyContent="center"
-      height="100%"
       width="100%"
     >
       {loading ? (
         <CircularProgress color="inherit" sx={{ alignSelf: "center" }} />
       ) : (
-        <>
-          {messages.map((message) => (
-            <Typography key={message._id}>{message.text}</Typography>
-          ))}
-        </>
+        <Box p={3} width="100%">
+          <Stack spacing={3}>
+            {messages.map((message) => {
+              switch (message.message_type) {
+                case MessageTypeEnum.STANDARD_MESSAGE:
+                  return <TextMsg key={message._id} message={message} />
+
+                default:
+                  return <TextMsg message={message} />
+              }
+            })}
+          </Stack>
+        </Box>
       )}
     </Box>
   )

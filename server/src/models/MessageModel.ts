@@ -6,6 +6,8 @@ export enum MessageTypeEnum {
   REJECT_QUOTE_MESSAGE = "reject_quote_message",
   ACCEPT_QUOTE_MESSAGE = "accept_quote_message",
   STANDARD_MESSAGE = "standard_message",
+  IMAGE = "image",
+  DOCUMENT = "document",
 }
 
 export interface MessageDocument extends Document {
