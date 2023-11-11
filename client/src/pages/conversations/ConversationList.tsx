@@ -16,6 +16,7 @@ import { AuthContext } from "../../contexts/AuthContext/AuthContext"
 import { ConversationContext } from "../../contexts/ConversationContext/ConversationContext"
 import ChatElement from "../../components/ChatElement"
 import ChatLoading from "../../components/ChatLoading"
+import { ConversationDto } from "../../types/ConversationDto"
 
 function ConversationList() {
   const snackbarContext = React.useContext(SnackbarContext)
@@ -43,6 +44,30 @@ function ConversationList() {
     fetchConversations()
     // eslint-disable-next-line
   }, [conversationContext.fetchConversations])
+
+  const handleChatClick = async (conversation: ConversationDto) => {
+    conversationContext.setSelectedConversation(conversation)
+    try {
+      if (!authContext.authToken) {
+        snackbarContext.showSnackBarWithMessage(
+          "Please log in to see messages",
+          "warning"
+        )
+        return
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${authContext.authToken}`,
+        },
+      }
+
+      await axios.put(`/api/messages/unread/${conversation._id}`, {}, config)
+      fetchConversations()
+    } catch (error) {
+      snackbarContext.showSnackBarWithError(error)
+    }
+  }
 
   return (
     <Box
@@ -96,11 +121,7 @@ function ConversationList() {
                         conversationContext.selectedConversation?._id ===
                         conversation._id
                       }
-                      onClick={() => {
-                        conversationContext.setSelectedConversation(
-                          conversation
-                        )
-                      }}
+                      onClick={() => handleChatClick(conversation)}
                     >
                       <ChatElement conversation={conversation} />
                     </ListItemButton>
