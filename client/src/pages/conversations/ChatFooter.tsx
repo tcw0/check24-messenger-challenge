@@ -15,7 +15,6 @@ import SendIcon from "@mui/icons-material/Send"
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt"
 import InsertPhotoOutlinedIcon from "@mui/icons-material/InsertPhotoOutlined"
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined"
-import PhotoCameraOutlinedIcon from "@mui/icons-material/PhotoCameraOutlined"
 import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined"
 
 import data from "@emoji-mart/data"
@@ -42,18 +41,14 @@ const Actions = [
     icon: <InsertPhotoOutlinedIcon sx={{ color: "white" }} />,
     y: 102,
     title: "Photo/Video",
+    acceptedFiles: ".png, .jpg, .jpeg, .gif",
   },
   {
     color: "#1b8cfe",
     icon: <InsertDriveFileOutlinedIcon sx={{ color: "white" }} />,
     y: 172,
     title: "Document",
-  },
-  {
-    color: "#0172e4",
-    icon: <PhotoCameraOutlinedIcon sx={{ color: "white" }} />,
-    y: 242,
-    title: "Camera",
+    acceptedFiles: "application/pdf",
   },
 ]
 
@@ -66,16 +61,23 @@ function ChatFooter({
 }) {
   const theme = useTheme()
   const [openPicker, setOpenPicker] = React.useState(false)
+  const [openEmojis, setOpenEmojis] = React.useState(false)
   const [message, setMessage] = React.useState("")
 
   const snackbarContext = React.useContext(SnackbarContext)
   const authContext = React.useContext(AuthContext)
   const conversationContext = React.useContext(ConversationContext)
 
-  const sendMessage = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    console.log("Send message")
-    if (!message) {
+  const sendMessage = async (
+    newMessage: string,
+    messageType: MessageTypeEnum,
+    event?: FormEvent<HTMLFormElement>
+  ) => {
+    console.log("Send Message Image")
+    if (event) {
+      event.preventDefault()
+    }
+    if (!newMessage) {
       snackbarContext.showSnackBarWithMessage(
         "Please enter a message",
         "warning"
@@ -106,21 +108,136 @@ function ChatFooter({
       }
       setMessage("")
 
+      console.log("Post Image")
+
       const { data } = await axios.post(
         `/api/messages`,
         {
           conversationId: conversationContext.selectedConversation._id,
-          text: message,
-          messageType: MessageTypeEnum.STANDARD_MESSAGE,
+          text: newMessage,
+          messageType: messageType,
         },
         config
       )
-      console.log("Get message", data)
+      console.log("Get image", data)
       setMessages([...messages, data])
       conversationContext.setFetchConversations((val) => !val)
     } catch (error) {
       snackbarContext.showSnackBarWithError(error)
     }
+  }
+
+  const sendImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      console.log("Send image")
+      const { files } = event.currentTarget
+      const file = files?.[0]
+      if (file && file.size > 5 * 1024 * 1024) {
+        snackbarContext.showSnackBarWithMessage(
+          "Image is too big (max 5MB)",
+          "warning"
+        )
+      } else if (file) {
+        console.log("File existing")
+
+        const data = new FormData()
+        data.append("file", file)
+        data.append("upload_preset", "check24-messenger-challenge")
+        data.append("cloud_name", "dfwi4nnfn")
+        await fetch("https://api.cloudinary.com/v1_1/dfwi4nnfn/raw/upload", {
+          method: "post",
+          body: data,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("Image uploaded", data.url.toString())
+            sendMessage(data.url.toString(), MessageTypeEnum.IMAGE, undefined)
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }
+    } catch (error) {
+      snackbarContext.showSnackBarWithError(error)
+    }
+    setOpenPicker(false)
+  }
+
+  //   const sendDocument = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  //     try {
+  //       console.log("Send image")
+  //       const { files } = event.currentTarget
+  //       const file = files?.[0]
+  //       if (file && file.size > 5 * 1024 * 1024) {
+  //         snackbarContext.showSnackBarWithMessage(
+  //           "Image is too big (max 5MB)",
+  //           "warning"
+  //         )
+  //       } else if (file) {
+  //         console.log("File existing")
+
+  //         const formData = new FormData()
+
+  //         formData.append("image", file)
+
+  //         await fetch(
+  //           "https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5",
+  //           {
+  //             method: "POST",
+  //             body: formData,
+  //           }
+  //         )
+  //           .then((response) => response.json())
+  //           .then((result) => {
+  //             console.log("Success:", result)
+  //           })
+  //           .catch((error) => {
+  //             console.error("Error:", error)
+  //           })
+  //       }
+  //     } catch (error) {
+  //       snackbarContext.showSnackBarWithError(error)
+  //     }
+  //   }
+
+  const sendDocument = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      console.log("Send image")
+      const { files } = event.currentTarget
+      const file = files?.[0]
+      if (file && file.size > 5 * 1024 * 1024) {
+        snackbarContext.showSnackBarWithMessage(
+          "Image is too big (max 5MB)",
+          "warning"
+        )
+      } else if (file) {
+        console.log("File existing")
+
+        const data = new FormData()
+        data.append("file", file)
+        data.append("upload_preset", "check24-messenger-challenge")
+        data.append("cloud_name", "dfwi4nnfn")
+        await fetch("https://api.cloudinary.com/v1_1/dfwi4nnfn/raw/upload", {
+          method: "post",
+          body: data,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("Image uploaded", data.url.toString())
+            sendMessage(
+              data.url.toString(),
+              MessageTypeEnum.DOCUMENT,
+              undefined
+            )
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+      }
+    } catch (error) {
+      snackbarContext.showSnackBarWithError(error)
+    }
+    setOpenPicker(false)
   }
 
   return (
@@ -144,9 +261,9 @@ function ChatFooter({
               style={{
                 zIndex: 10,
                 position: "fixed",
-                display: openPicker ? "inline" : "none",
+                display: openEmojis ? "inline" : "none",
                 bottom: 81,
-                right: 420,
+                right: 100,
               }}
             >
               <Picker data={data} onEmojiSelect={console.log} />
@@ -172,13 +289,14 @@ function ChatFooter({
                         display: openPicker ? "inline-block" : "none",
                       }}
                     >
-                      {Actions.map((el) => (
+                      {Actions.map((el, idx) => (
                         <Tooltip
                           key={el.title}
                           placement="right"
                           title={el.title}
                         >
                           <Fab
+                            component="label"
                             onClick={() => {
                               setOpenPicker(!openPicker)
                             }}
@@ -192,6 +310,12 @@ function ChatFooter({
                             }}
                             aria-label="add"
                           >
+                            <input
+                              type="file"
+                              accept={el.acceptedFiles}
+                              style={{ display: "none" }}
+                              onChange={idx === 0 ? sendImage : sendDocument}
+                            />
                             {el.icon}
                           </Fab>
                         </Tooltip>
@@ -215,7 +339,7 @@ function ChatFooter({
                     <InputAdornment position="end">
                       <IconButton
                         onClick={() => {
-                          setOpenPicker(!openPicker)
+                          setOpenEmojis(!openEmojis)
                         }}
                       >
                         <SentimentSatisfiedAltIcon />
@@ -239,9 +363,11 @@ function ChatFooter({
               alignItems={"center"}
               justifyContent={"center"}
               component="form"
-              onSubmit={sendMessage}
+              onSubmit={(event) =>
+                sendMessage(message, MessageTypeEnum.STANDARD_MESSAGE, event)
+              }
             >
-              <IconButton disabled={!message} type="submit" color="primary">
+              <IconButton disabled={!message} type="submit">
                 <SendIcon sx={{ color: "#ffffff" }} />
               </IconButton>
             </Stack>

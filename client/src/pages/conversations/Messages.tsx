@@ -2,7 +2,7 @@ import React from "react"
 import { Box, CircularProgress, Stack } from "@mui/material"
 
 import { MessageDto, MessageTypeEnum } from "../../types/MessageDto"
-import { TextMsg } from "../../components/MessageTypes"
+import { TextMsg, MediaMsg, DocMsg } from "../../components/MessageTypes"
 
 function Messages({
   messages,
@@ -25,11 +25,12 @@ function Messages({
           <Stack spacing={3}>
             {messages.map((message) => {
               switch (message.message_type) {
-                case MessageTypeEnum.STANDARD_MESSAGE:
-                  return <TextMsg key={message._id} message={message} />
-
+                case MessageTypeEnum.IMAGE:
+                  return <MediaMsg key={message._id} message={message} />
+                case MessageTypeEnum.DOCUMENT:
+                  return <DocMsg key={message._id} message={message} />
                 default:
-                  return <TextMsg message={message} />
+                  return <TextMsg key={message._id} message={message} />
               }
             })}
           </Stack>
