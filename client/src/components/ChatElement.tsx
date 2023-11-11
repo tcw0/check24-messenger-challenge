@@ -60,7 +60,7 @@ export default function ChatElement({
 
   const date = () => {
     if (conversation.latest_message) {
-      return conversation.latest_message.updated_at
+      return new Date(conversation.latest_message.updated_at)
     } else {
       return new Date(conversation.created_at)
     }
@@ -105,7 +105,7 @@ export default function ChatElement({
           <Badge
             className="unread-count"
             color="primary"
-            badgeContent={conversation.unread_messages}
+            badgeContent={conversation.unreadMessagesCount}
           />
         </Stack>
       </Stack>

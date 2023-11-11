@@ -18,5 +18,5 @@ export type ConversationDto = {
   latest_message?: MessageDto
   customer_id: UserDto
   service_provider_id: UserDto
-  unread_messages: number
+  unreadMessagesCount: number
 }

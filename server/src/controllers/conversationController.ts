@@ -29,6 +29,7 @@ export const getConversations = asyncHandler(async (req, res) => {
         const unreadMessagesCount = await MessageService.countDocuments({
           conversation_id: conversation._id,
           read_at: { $exists: false },
+          sender_id: { $ne: (req.user as User).id },
         })
         return {
           ...conversation.toObject(),

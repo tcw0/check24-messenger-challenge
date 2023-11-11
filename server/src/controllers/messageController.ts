@@ -76,8 +76,8 @@ export const postMessage = asyncHandler(async (req, res) => {
       message_type: messageType,
       text: text,
       sender_type: sender.user_type,
-      created_at: new Date(),
-      updated_at: new Date(),
+      created_at: Date(),
+      updated_at: Date(),
       sender_id: sender._id,
     })
 
