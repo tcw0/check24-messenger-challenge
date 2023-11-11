@@ -2,6 +2,7 @@ import { Box, Badge, Stack, Avatar, Typography } from "@mui/material"
 import React from "react"
 import { ConversationDto } from "../types/ConversationDto"
 import { AuthContext } from "../contexts/AuthContext/AuthContext"
+import { useSearchParams } from "react-router-dom"
 
 const truncateText = (string: string, n: number) => {
   return string?.length > n ? `${string?.slice(0, n)}...` : string
@@ -66,14 +67,19 @@ export default function ChatElement({
     }
   }
 
+  const [searchParams, setSearchParams] = useSearchParams()
+
   return (
     <Box
       sx={{
         width: "100%",
-
         borderRadius: 1,
       }}
       p={2}
+      onClick={() => {
+        searchParams.set("id", conversation._id)
+        setSearchParams(searchParams);
+      }}
     >
       <Stack
         direction="row"
