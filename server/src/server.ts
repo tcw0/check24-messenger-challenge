@@ -4,6 +4,7 @@ import connectDB from "./config/mongoDB"
 import userRouter from "./routes/userRouter"
 import conversationRouter from "./routes/conversationRouter"
 import { errorHandler, notFound } from "./middleware/errorHandler"
+import messageRouter from "./routes/messageRouter"
 
 dotenv.config()
 
@@ -18,6 +19,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/", [userRouter()])
 app.use("/api/", [conversationRouter()])
+app.use("/api/", [messageRouter()])
 
 app.use(notFound)
 app.use(errorHandler)
