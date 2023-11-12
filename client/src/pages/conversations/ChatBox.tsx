@@ -8,7 +8,7 @@ import ChatFooter from "./ChatFooter"
 import { MessageDto, MessageTypeEnum } from "../../types/MessageDto"
 import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
 import { AuthContext } from "../../contexts/AuthContext/AuthContext"
-import axios from "axios"
+import axios, { Canceler } from "axios"
 
 import io, { Socket } from "socket.io-client"
 import { ConversationDto } from "../../types/ConversationDto"
@@ -23,11 +23,33 @@ const ChatBox = () => {
   const [typing, setTyping] = React.useState(false)
   const [isTyping, setIsTyping] = React.useState(false)
 
+  const [page, setPage] = React.useState(1)
+  const [hasMore, setHasMore] = React.useState(false)
+
+  const observer = React.useRef<IntersectionObserver | undefined>()
+  const firstMessageElementRef = React.useCallback(
+    (node: HTMLElement | null) => {
+      if (loading) return
+      if (observer.current) observer.current.disconnect()
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          console.log("Visible")
+          setPage((prevPage) => prevPage + 1)
+        }
+      })
+      if (node) observer.current.observe(node)
+    },
+    [loading, hasMore]
+  )
+
   const conversationContext = React.useContext(ConversationContext)
   const snackbarContext = React.useContext(SnackbarContext)
   const authContext = React.useContext(AuthContext)
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (pageNumber: number) => {
+    setLoading(true)
+    let cancel: Canceler
+    console.log("Fetching messages", pageNumber)
     if (!conversationContext.selectedConversation) return
 
     try {
@@ -43,9 +65,8 @@ const ChatBox = () => {
         headers: {
           Authorization: `Bearer ${authContext.authToken}`,
         },
+        cancelToken: new axios.CancelToken((c) => (cancel = c)),
       }
-
-      setLoading(true)
 
       if (!conversationContext.selectedConversation) {
         snackbarContext.showSnackBarWithMessage(
@@ -59,14 +80,21 @@ const ChatBox = () => {
         `/api/messages/${conversationContext.selectedConversation._id}`,
         config
       )
-      setMessages(data)
+      setMessages((prevMessages) => [...data, ...prevMessages])
+      setHasMore(data.length > 0)
       setLoading(false)
 
       socket.emit("join chat", conversationContext.selectedConversation._id)
     } catch (error) {
+      if (axios.isCancel(error)) return
       snackbarContext.showSnackBarWithError(error)
     }
+    return () => cancel()
   }
+
+  // React.useEffect(() => {
+  //   fetchMessages(page)
+  // }, [page])
 
   const sendMessage = async (
     newMessage: string,
@@ -179,11 +207,12 @@ const ChatBox = () => {
   }
 
   React.useEffect(() => {
-    fetchMessages()
+    setMessages([])
+    fetchMessages(page)
 
     selectedConversationCompare = conversationContext.selectedConversation
     // eslint-disable-next-line
-  }, [conversationContext.selectedConversation])
+  }, [conversationContext.selectedConversation, page])
 
   React.useEffect(() => {
     socket = io(ENDPOINT)
@@ -378,10 +407,11 @@ const ChatBox = () => {
               loading={loading}
               scrollRef={scrollRef}
               isTyping={isTyping}
+              firstMessageElementRef={firstMessageElementRef}
             />
           </Box>
 
-          <Box ref={scrollRef} mt={0} />
+          {/* <Box ref={scrollRef} mt={0} /> */}
 
           <ChatFooter sendMessage={sendMessage} typingHandler={typingHandler} />
         </Stack>
