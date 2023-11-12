@@ -45,7 +45,7 @@ function ConversationList() {
     // eslint-disable-next-line
   }, [conversationContext.fetchConversations])
 
-  const handleChatClick = async (conversation: ConversationDto) => {
+  const updateUnread = async (conversation: ConversationDto) => {
     conversationContext.setSelectedConversation(conversation)
     try {
       if (!authContext.authToken) {
@@ -121,7 +121,7 @@ function ConversationList() {
                         conversationContext.selectedConversation?._id ===
                         conversation._id
                       }
-                      onClick={() => handleChatClick(conversation)}
+                      onClick={() => updateUnread(conversation)}
                     >
                       <ChatElement conversation={conversation} />
                     </ListItemButton>
