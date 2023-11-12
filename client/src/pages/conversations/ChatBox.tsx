@@ -18,8 +18,10 @@ let socket: Socket, selectedConversationCompare: ConversationDto | undefined
 const ChatBox = () => {
   const [messages, setMessages] = React.useState<MessageDto[]>([])
   const [loading, setLoading] = React.useState(false)
-  // eslint-disable-next-line
+
   const [socketConnected, setSocketConnected] = React.useState(false)
+  const [typing, setTyping] = React.useState(false)
+  const [isTyping, setIsTyping] = React.useState(false)
 
   const conversationContext = React.useContext(ConversationContext)
   const snackbarContext = React.useContext(SnackbarContext)
@@ -71,6 +73,10 @@ const ChatBox = () => {
     messageType: MessageTypeEnum,
     event?: FormEvent<HTMLFormElement>
   ) => {
+    socket.emit("stop typing", {
+      room: conversationContext.selectedConversation?._id,
+      userId: authContext.userId,
+    })
     console.log("Send Message Image")
     if (event) {
       event.preventDefault()
@@ -150,6 +156,36 @@ const ChatBox = () => {
     }
   }
 
+  const typingHandler = () => {
+    if (!socketConnected) return
+
+    if (!typing) {
+      setTyping(true)
+      socket.emit("typing", {
+        room: conversationContext.selectedConversation?._id,
+        userId: authContext.userId,
+      })
+      console.log(
+        "Emmiting typing",
+        conversationContext.selectedConversation?._id,
+        authContext.userId
+      )
+    }
+    const lastTypingTime = new Date().getTime()
+    const timerLength = 3000
+    setTimeout(() => {
+      const timeNow = new Date().getTime()
+      const timeDiff = timeNow - lastTypingTime
+      if (timeDiff >= timerLength && typing) {
+        socket.emit("stop typing", {
+          room: conversationContext.selectedConversation?._id,
+          userId: authContext.userId,
+        })
+        setTyping(false)
+      }
+    }, timerLength)
+  }
+
   React.useEffect(() => {
     fetchMessages()
 
@@ -160,14 +196,24 @@ const ChatBox = () => {
   React.useEffect(() => {
     socket = io(ENDPOINT)
     socket.emit("setup", authContext.userId)
-    socket.on("connection", () => setSocketConnected(true))
+    socket.on("connected", () => setSocketConnected(true))
+    socket.on("typing", (userId) => {
+      if (userId !== authContext.userId) {
+        setIsTyping(true)
+      }
+    })
+    socket.on("stop typing", (userId) => {
+      if (userId !== authContext.userId) {
+        setIsTyping(false)
+      }
+    })
     // eslint-disable-next-line
   }, [])
 
   React.useEffect(() => {
     socket.on("message received", (newMessageRecieved) => {
       if (
-        !selectedConversationCompare || // if chat is not selected or doesn't match current chat
+        !selectedConversationCompare ||
         selectedConversationCompare._id !==
           newMessageRecieved.conversation_id._id
       ) {
@@ -190,6 +236,14 @@ const ChatBox = () => {
     })
   })
 
+  const scrollRef = React.useRef<null | HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages, isTyping])
+
   return (
     <>
       {conversationContext.selectedConversation ? (
@@ -201,16 +255,21 @@ const ChatBox = () => {
               position: "relative",
               flexGrow: 1,
               overflow: "scroll",
-
               backgroundColor: "#F0F4FA",
-
               boxShadow: "0px 0px 2px rgba(0, 0, 0, 0.25)",
             }}
           >
-            <Messages messages={messages} loading={loading} />
+            <Messages
+              messages={messages}
+              loading={loading}
+              scrollRef={scrollRef}
+              isTyping={isTyping}
+            />
           </Box>
 
-          <ChatFooter sendMessage={sendMessage} />
+          <Box ref={scrollRef} mt={0} />
+
+          <ChatFooter sendMessage={sendMessage} typingHandler={typingHandler} />
         </Stack>
       ) : (
         <Stack

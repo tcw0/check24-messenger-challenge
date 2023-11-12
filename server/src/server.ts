@@ -81,6 +81,16 @@ io.on("connection", (socket: Socket) => {
     }
   })
 
-  socket.on("typing", (room) => socket.in(room).emit("typing"))
-  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"))
+  socket.on("typing", ({ room, userId }) => {
+    console.log("Receiving typing", room, userId)
+    if (userId !== socket.id) {
+      io.in(room).emit("typing", userId)
+    }
+  })
+
+  socket.on("stop typing", ({ room, userId }) => {
+    if (userId !== socket.id) {
+      io.in(room).emit("stop typing", userId)
+    }
+  })
 })

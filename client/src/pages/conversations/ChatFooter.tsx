@@ -51,12 +51,14 @@ const Actions = [
 
 function ChatFooter({
   sendMessage,
+  typingHandler,
 }: {
   sendMessage: (
     newMessage: string,
     messageType: MessageTypeEnum,
     event?: FormEvent<HTMLFormElement>
   ) => Promise<void>
+  typingHandler: () => void
 }) {
   const theme = useTheme()
   const [openPicker, setOpenPicker] = React.useState(false)
@@ -211,6 +213,7 @@ function ChatFooter({
               value={message}
               onChange={(event) => {
                 setMessage(event.target.value)
+                typingHandler()
               }}
               fullWidth
               placeholder="Write a message..."

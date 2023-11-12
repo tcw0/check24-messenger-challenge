@@ -1,5 +1,5 @@
 import React from "react"
-import { Box, CircularProgress, Stack } from "@mui/material"
+import { Box, CircularProgress, Stack, Typography } from "@mui/material"
 
 import { MessageDto, MessageTypeEnum } from "../../types/MessageDto"
 import { TextMsg, MediaMsg, DocMsg } from "../../components/MessageTypes"
@@ -7,16 +7,19 @@ import { TextMsg, MediaMsg, DocMsg } from "../../components/MessageTypes"
 function Messages({
   messages,
   loading,
+  scrollRef,
+  isTyping,
 }: {
   messages: MessageDto[]
   loading: boolean
+  scrollRef: React.MutableRefObject<HTMLDivElement | null>
+  isTyping: boolean
 }) {
-  const scrollRef = React.useRef<null | HTMLDivElement>(null)
-
   React.useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" })
     }
+    // eslint-disable-next-line
   }, [messages])
 
   return (
@@ -41,6 +44,23 @@ function Messages({
                   return <TextMsg key={message._id} message={message} />
               }
             })}
+            {isTyping ? (
+              <Box
+                px={1.5}
+                py={1.5}
+                sx={{
+                  backgroundColor: "#ebebeb",
+                  borderRadius: 1.5,
+                  width: "max-content",
+                }}
+              >
+                <Typography variant="body2" color={"#8e8e8e"}>
+                  {"Typing..."}
+                </Typography>
+              </Box>
+            ) : (
+              <></>
+            )}
           </Stack>
           <Box ref={scrollRef} mt={0} />
         </Box>
