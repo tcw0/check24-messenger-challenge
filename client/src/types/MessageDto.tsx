@@ -1,3 +1,4 @@
+import { ConversationDto } from "./ConversationDto"
 import { UserDto, UserTypeEnum } from "./UserDto"
 
 export enum MessageTypeEnum {
@@ -11,7 +12,7 @@ export enum MessageTypeEnum {
 
 export type MessageDto = {
   _id: string
-  conversation_id: string
+  conversation_id: ConversationDto
   message_type: MessageTypeEnum
   text: string
   sender_type: UserTypeEnum
