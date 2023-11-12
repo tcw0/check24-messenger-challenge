@@ -40,7 +40,7 @@ const io = require("socket.io")(server, {
 })
 
 io.on("connection", (socket: Socket) => {
-  console.log("Connected to socket.io")
+  // console.log("Connected to socket.io")
   socket.on("setup", (userId) => {
     socket.join(userId)
     console.log(userId, "joined")
@@ -53,6 +53,7 @@ io.on("connection", (socket: Socket) => {
   })
 
   socket.on("new message", (newMessageRecieved) => {
+    console.log("Send message received")
     const conversation = newMessageRecieved.conversation_id
 
     if (!conversation.customer_id || !conversation.service_provider_id)

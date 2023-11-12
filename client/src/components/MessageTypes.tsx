@@ -224,11 +224,9 @@ let socket: Socket
 
 export const QuoteMsg = ({
   message,
-  messages,
   setMessages,
 }: {
   message: MessageDto
-  messages: MessageDto[]
   setMessages: React.Dispatch<React.SetStateAction<MessageDto[]>>
 }) => {
   const theme = useTheme()
@@ -274,7 +272,12 @@ export const QuoteMsg = ({
       )
       console.log("Accepted Quote", data)
       socket.emit("new message", data)
-      setMessages([...messages, data])
+      setMessages((prevMessages) => {
+        const messages = [data, ...prevMessages]
+        return Array.from(new Set(messages.map((message) => message._id)))
+          .map((_id) => messages.find((message) => message._id === _id))
+          .filter((message) => message !== undefined) as MessageDto[]
+      })
       conversationContext.setFetchConversations((val) => !val)
       setDisabled(true)
     } catch (error) {
@@ -305,7 +308,12 @@ export const QuoteMsg = ({
       )
       console.log("Rejected Quote", data)
       socket.emit("new message", data)
-      setMessages([...messages, data])
+      setMessages((prevMessages) => {
+        const messages = [data, ...prevMessages]
+        return Array.from(new Set(messages.map((message) => message._id)))
+          .map((_id) => messages.find((message) => message._id === _id))
+          .filter((message) => message !== undefined) as MessageDto[]
+      })
       conversationContext.setFetchConversations((val) => !val)
       setDisabled(true)
     } catch (error) {

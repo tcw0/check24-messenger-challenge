@@ -37,7 +37,7 @@ function Messages({
         <CircularProgress color="inherit" sx={{ alignSelf: "center" }} />
       )}
       <Box p={3} width="100%">
-        <Stack direction="row" justifyContent={"center"}>
+        <Stack direction="row" justifyContent={"center"}  sx={{mb: 2}}>
           <Box
             sx={{
               backgroundColor: "#ebebeb",
@@ -75,7 +75,6 @@ function Messages({
                   <QuoteMsg
                     key={message._id}
                     message={message}
-                    messages={messages}
                     setMessages={setMessages}
                   />
                 )

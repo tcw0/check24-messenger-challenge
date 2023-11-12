@@ -143,7 +143,12 @@ const ChatBox = () => {
       )
 
       socket.emit("new message", data)
-      setMessages([...messages, data])
+      setMessages((prevMessages) => {
+        const messages = [data, ...prevMessages]
+        return Array.from(new Set(messages.map((message) => message._id)))
+          .map((_id) => messages.find((message) => message._id === _id))
+          .filter((message) => message !== undefined) as MessageDto[]
+      })
       conversationContext.setFetchConversations((val) => !val)
     } catch (error) {
       snackbarContext.showSnackBarWithError(error)
@@ -236,13 +241,18 @@ const ChatBox = () => {
 
   React.useEffect(() => {
     socket.on("message received", (newMessageRecieved) => {
-      console.log("Message received", newMessageRecieved)
       if (
         selectedConversationCompare &&
         selectedConversationCompare._id ===
           newMessageRecieved.conversation_id._id
       ) {
-        setMessages([...messages, newMessageRecieved])
+        console.log("Message received", newMessageRecieved)
+        setMessages((prevMessages) => {
+          const messages = [newMessageRecieved, ...prevMessages]
+          return Array.from(new Set(messages.map((message) => message._id)))
+            .map((_id) => messages.find((message) => message._id === _id))
+            .filter((message) => message !== undefined) as MessageDto[]
+        })
         updateUnread(newMessageRecieved.conversation_id._id)
       }
 
@@ -292,7 +302,12 @@ const ChatBox = () => {
       )
       console.log("Completed conversation", data)
       socket.emit("new message", data)
-      setMessages([...messages, data])
+      setMessages((prevMessages) => {
+        const messages = [data, ...prevMessages]
+        return Array.from(new Set(messages.map((message) => message._id)))
+          .map((_id) => messages.find((message) => message._id === _id))
+          .filter((message) => message !== undefined) as MessageDto[]
+      })
       conversationContext.setFetchConversations((val) => !val)
       return true
     } catch (error) {
@@ -332,7 +347,12 @@ const ChatBox = () => {
       )
       console.log("Reviewed conversation", data)
       socket.emit("new message", data)
-      setMessages([...messages, data])
+      setMessages((prevMessages) => {
+        const messages = [data, ...prevMessages]
+        return Array.from(new Set(messages.map((message) => message._id)))
+          .map((_id) => messages.find((message) => message._id === _id))
+          .filter((message) => message !== undefined) as MessageDto[]
+      })
       conversationContext.setFetchConversations((val) => !val)
       return true
     } catch (error) {
