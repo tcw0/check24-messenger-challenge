@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react"
+import React from "react"
 import { ConversationContext } from "../../contexts/ConversationContext/ConversationContext"
 import { Stack, Typography, Box } from "@mui/material"
 import NoChat from "../../components/NoChat"
@@ -70,17 +70,13 @@ const ChatBox = () => {
 
   const sendMessage = async (
     newMessage: string,
-    messageType: MessageTypeEnum,
-    event?: FormEvent<HTMLFormElement>
+    messageType: MessageTypeEnum
   ) => {
     socket.emit("stop typing", {
       room: conversationContext.selectedConversation?._id,
       userId: authContext.userId,
     })
 
-    if (event) {
-      event.preventDefault()
-    }
     if (!newMessage) {
       snackbarContext.showSnackBarWithMessage(
         "Please enter a message",

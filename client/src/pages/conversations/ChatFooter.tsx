@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react"
+import React from "react"
 import {
   Box,
   IconButton,
@@ -57,8 +57,7 @@ function ChatFooter({
 }: {
   sendMessage: (
     newMessage: string,
-    messageType: MessageTypeEnum,
-    event?: FormEvent<HTMLFormElement>
+    messageType: MessageTypeEnum
   ) => Promise<void>
   typingHandler: () => void
 }) {
@@ -96,7 +95,7 @@ function ChatFooter({
           .then((res) => res.json())
           .then((data) => {
             console.log("Image uploaded", data.url.toString())
-            sendMessage(data.url.toString(), MessageTypeEnum.IMAGE, undefined)
+            sendMessage(data.url.toString(), MessageTypeEnum.IMAGE)
           })
           .catch((err) => {
             console.log(err)
@@ -132,11 +131,7 @@ function ChatFooter({
           .then((res) => res.json())
           .then((data) => {
             console.log("Image uploaded", data.url.toString())
-            sendMessage(
-              data.url.toString(),
-              MessageTypeEnum.DOCUMENT,
-              undefined
-            )
+            sendMessage(data.url.toString(), MessageTypeEnum.DOCUMENT)
           })
           .catch((err) => {
             console.log(err)
@@ -295,23 +290,24 @@ function ChatFooter({
               alignItems={"center"}
               justifyContent={"center"}
               component="form"
-              onSubmit={(event) => {
-                sendMessage(
-                  message,
-                  isQuote
-                    ? MessageTypeEnum.QUOTE_OFFER
-                    : MessageTypeEnum.STANDARD_MESSAGE,
-                  event
-                )
-                setMessage("")
-
-                if (isQuote) {
-                  setDisableCheckbox(true)
-                  setIsQuote(false)
-                }
-              }}
             >
-              <IconButton disabled={!message} type="submit">
+              <IconButton
+                disabled={!message}
+                onClick={() => {
+                  sendMessage(
+                    message,
+                    isQuote
+                      ? MessageTypeEnum.QUOTE_OFFER
+                      : MessageTypeEnum.STANDARD_MESSAGE
+                  )
+                  setMessage("")
+
+                  if (isQuote) {
+                    setDisableCheckbox(true)
+                    setIsQuote(false)
+                  }
+                }}
+              >
                 <SendIcon sx={{ color: "#ffffff" }} />
               </IconButton>
             </Stack>
