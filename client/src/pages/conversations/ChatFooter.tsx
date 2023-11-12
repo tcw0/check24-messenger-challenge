@@ -20,10 +20,7 @@ import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined"
 import data from "@emoji-mart/data"
 import Picker from "@emoji-mart/react"
 import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
-import { AuthContext } from "../../contexts/AuthContext/AuthContext"
-import { ConversationContext } from "../../contexts/ConversationContext/ConversationContext"
-import axios from "axios"
-import { MessageDto, MessageTypeEnum } from "../../types/MessageDto"
+import { MessageTypeEnum } from "../../types/MessageDto"
 
 const StyledInput = styled(TextField)(() => ({
   "& .MuiInputBase-input": {
@@ -53,11 +50,13 @@ const Actions = [
 ]
 
 function ChatFooter({
-  messages,
-  setMessages,
+  sendMessage,
 }: {
-  messages: MessageDto[]
-  setMessages: React.Dispatch<React.SetStateAction<MessageDto[]>>
+  sendMessage: (
+    newMessage: string,
+    messageType: MessageTypeEnum,
+    event?: FormEvent<HTMLFormElement>
+  ) => Promise<void>
 }) {
   const theme = useTheme()
   const [openPicker, setOpenPicker] = React.useState(false)
@@ -65,67 +64,6 @@ function ChatFooter({
   const [message, setMessage] = React.useState("")
 
   const snackbarContext = React.useContext(SnackbarContext)
-  const authContext = React.useContext(AuthContext)
-  const conversationContext = React.useContext(ConversationContext)
-
-  const sendMessage = async (
-    newMessage: string,
-    messageType: MessageTypeEnum,
-    event?: FormEvent<HTMLFormElement>
-  ) => {
-    console.log("Send Message Image")
-    if (event) {
-      event.preventDefault()
-    }
-    if (!newMessage) {
-      snackbarContext.showSnackBarWithMessage(
-        "Please enter a message",
-        "warning"
-      )
-      return
-    }
-    try {
-      if (!authContext.authToken) {
-        snackbarContext.showSnackBarWithMessage(
-          "Please log in to send a message",
-          "warning"
-        )
-        return
-      }
-      const config = {
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${authContext.authToken}`,
-        },
-      }
-
-      if (!conversationContext.selectedConversation) {
-        snackbarContext.showSnackBarWithMessage(
-          "Please select a conversation to send a message",
-          "warning"
-        )
-        return
-      }
-      setMessage("")
-
-      console.log("Post Image")
-
-      const { data } = await axios.post(
-        `/api/messages`,
-        {
-          conversationId: conversationContext.selectedConversation._id,
-          text: newMessage,
-          messageType: messageType,
-        },
-        config
-      )
-      console.log("Get image", data)
-      setMessages([...messages, data])
-      conversationContext.setFetchConversations((val) => !val)
-    } catch (error) {
-      snackbarContext.showSnackBarWithError(error)
-    }
-  }
 
   const sendImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -363,9 +301,10 @@ function ChatFooter({
               alignItems={"center"}
               justifyContent={"center"}
               component="form"
-              onSubmit={(event) =>
+              onSubmit={(event) => {
                 sendMessage(message, MessageTypeEnum.STANDARD_MESSAGE, event)
-              }
+                setMessage("")
+              }}
             >
               <IconButton disabled={!message} type="submit">
                 <SendIcon sx={{ color: "#ffffff" }} />

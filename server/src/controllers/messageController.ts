@@ -68,6 +68,15 @@ export const postMessage = asyncHandler(async (req, res) => {
     }
 
     newMessage = await newMessage.populate("sender_id", "name picture")
+    newMessage = await newMessage.populate("conversation_id")
+    await UserService.populate(newMessage, {
+      path: "conversation_id.service_provider_id",
+      select: "name picture email",
+    })
+    await UserService.populate(newMessage, {
+      path: "conversation_id.customer_id",
+      select: "name picture email",
+    })
 
     await ConversationService.findByIdAndUpdate(conversation._id, {
       latest_message: newMessage,
