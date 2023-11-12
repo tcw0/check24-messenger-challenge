@@ -8,7 +8,7 @@ import ChatFooter from "./ChatFooter"
 import { MessageDto, MessageTypeEnum } from "../../types/MessageDto"
 import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
 import { AuthContext } from "../../contexts/AuthContext/AuthContext"
-import axios, { Canceler } from "axios"
+import axios from "axios"
 
 import io, { Socket } from "socket.io-client"
 import { ConversationDto } from "../../types/ConversationDto"
@@ -26,21 +26,7 @@ const ChatBox = () => {
   const [page, setPage] = React.useState(1)
   const [hasMore, setHasMore] = React.useState(false)
 
-  const observer = React.useRef<IntersectionObserver | undefined>()
-  const firstMessageElementRef = React.useCallback(
-    (node: HTMLElement | null) => {
-      if (loading) return
-      if (observer.current) observer.current.disconnect()
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          console.log("Visible")
-          setPage((prevPage) => prevPage + 1)
-        }
-      })
-      if (node) observer.current.observe(node)
-    },
-    [loading, hasMore]
-  )
+  const scrollRef = React.useRef<null | HTMLDivElement>(null)
 
   const conversationContext = React.useContext(ConversationContext)
   const snackbarContext = React.useContext(SnackbarContext)
@@ -48,7 +34,6 @@ const ChatBox = () => {
 
   const fetchMessages = async (pageNumber: number) => {
     setLoading(true)
-    let cancel: Canceler
     console.log("Fetching messages", pageNumber)
     if (!conversationContext.selectedConversation) return
 
@@ -65,7 +50,6 @@ const ChatBox = () => {
         headers: {
           Authorization: `Bearer ${authContext.authToken}`,
         },
-        cancelToken: new axios.CancelToken((c) => (cancel = c)),
       }
 
       if (!conversationContext.selectedConversation) {
@@ -77,10 +61,15 @@ const ChatBox = () => {
       }
 
       const { data } = await axios.get(
-        `/api/messages/${conversationContext.selectedConversation._id}`,
+        `/api/messages/${conversationContext.selectedConversation._id}?page=${pageNumber}`,
         config
       )
-      setMessages((prevMessages) => [...data, ...prevMessages])
+      setMessages((prevMessages) => {
+        const messages = [...prevMessages, ...data]
+        return Array.from(new Set(messages.map((message) => message._id)))
+          .map((_id) => messages.find((message) => message._id === _id))
+          .filter((message) => message !== undefined) as MessageDto[]
+      })
       setHasMore(data.length > 0)
       setLoading(false)
 
@@ -89,12 +78,17 @@ const ChatBox = () => {
       if (axios.isCancel(error)) return
       snackbarContext.showSnackBarWithError(error)
     }
-    return () => cancel()
   }
 
-  // React.useEffect(() => {
-  //   fetchMessages(page)
-  // }, [page])
+  const loadMore = () => {
+    if (loading || !hasMore) return
+    setPage((prevPage) => {
+      const nextPage = prevPage + 1
+      fetchMessages(nextPage)
+      console.log("Loading more messages", nextPage)
+      return nextPage
+    })
+  }
 
   const sendMessage = async (
     newMessage: string,
@@ -212,7 +206,7 @@ const ChatBox = () => {
 
     selectedConversationCompare = conversationContext.selectedConversation
     // eslint-disable-next-line
-  }, [conversationContext.selectedConversation, page])
+  }, [conversationContext.selectedConversation])
 
   React.useEffect(() => {
     socket = io(ENDPOINT)
@@ -255,8 +249,6 @@ const ChatBox = () => {
       )
     })
   })
-
-  const scrollRef = React.useRef<null | HTMLDivElement>(null)
 
   React.useEffect(() => {
     if (scrollRef.current) {
@@ -407,11 +399,9 @@ const ChatBox = () => {
               loading={loading}
               scrollRef={scrollRef}
               isTyping={isTyping}
-              firstMessageElementRef={firstMessageElementRef}
+              loadMore={loadMore}
             />
           </Box>
-
-          {/* <Box ref={scrollRef} mt={0} /> */}
 
           <ChatFooter sendMessage={sendMessage} typingHandler={typingHandler} />
         </Stack>

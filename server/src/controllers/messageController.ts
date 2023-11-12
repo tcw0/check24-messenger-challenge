@@ -12,17 +12,23 @@ interface User {
 export const getMessagesByConversationId = asyncHandler(
   async (req: Request<{ conversationId: mongoose.Types.ObjectId }>, res) => {
     const { conversationId } = req.params
-    const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+
+    if (!req.query.page) {
+      res.status(400).send()
+      throw new Error("Missing page number")
+    }
+
+    const page = parseInt(req.query.page as string, 10)
     const pageSize = 10
     console.log("Get page", page)
 
     if (!conversationId || isNaN(page) || page < 1) {
-      res.status(400).send();
-      throw new Error("Invalid data passed to request");
+      res.status(400).send()
+      throw new Error("Invalid data passed to request")
     }
 
     try {
-      const skip = (page - 1) * pageSize;
+      const skip = (page - 1) * pageSize
 
       const messages = await MessageService.find({
         conversation_id: conversationId,
@@ -30,7 +36,7 @@ export const getMessagesByConversationId = asyncHandler(
         .populate("sender_id", "name picture")
         .sort({ created_at: -1 }) // Sort by created_at in descending order
         .skip(skip)
-        .limit(pageSize);
+        .limit(pageSize)
 
       res.status(200).json(messages)
     } catch (error) {

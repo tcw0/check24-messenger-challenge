@@ -1,5 +1,5 @@
 import React from "react"
-import { Box, CircularProgress, Stack, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material"
 
 import { MessageDto, MessageTypeEnum } from "../../types/MessageDto"
 import {
@@ -17,14 +17,14 @@ function Messages({
   loading,
   scrollRef,
   isTyping,
-  firstMessageElementRef,
+  loadMore,
 }: {
   messages: MessageDto[]
   setMessages: React.Dispatch<React.SetStateAction<MessageDto[]>>
   loading: boolean
   scrollRef: React.MutableRefObject<HTMLDivElement | null>
   isTyping: boolean
-  firstMessageElementRef: React.Ref<unknown> | undefined
+  loadMore: () => void
 }) {
   return (
     <Box
@@ -37,46 +37,58 @@ function Messages({
         <CircularProgress color="inherit" sx={{ alignSelf: "center" }} />
       )}
       <Box p={3} width="100%">
-        <Stack spacing={3}>
-          {messages.map((message, idx) => (
-            <Box
-              key={message._id}
-              // ref={idx === 0 ? firstMessageElementRef : undefined}
-              ref={
-                idx === messages.length - 1 ? firstMessageElementRef : undefined
-              }
-            >
-              {(() => {
-                switch (message.message_type) {
-                  case MessageTypeEnum.IMAGE:
-                    return <MediaMsg message={message} />
-                  case MessageTypeEnum.DOCUMENT:
-                    return <DocMsg message={message} />
-                  case MessageTypeEnum.QUOTE_OFFER:
-                    return (
-                      <QuoteMsg
-                        message={message}
-                        messages={messages}
-                        setMessages={setMessages}
-                      />
-                    )
-                  case MessageTypeEnum.ACCEPT_QUOTE_MESSAGE:
-                    return <AcceptRejectMsg message={message} accepted={true} />
-                  case MessageTypeEnum.REJECT_QUOTE_MESSAGE:
-                    return (
-                      <AcceptRejectMsg message={message} accepted={false} />
-                    )
-                  case MessageTypeEnum.COMPLETED_MESSAGE:
-                    return <CompleteReviewMsg message={message} />
-                  case MessageTypeEnum.REVIEWED_MESSAGE:
-                    return <CompleteReviewMsg message={message} />
-                  default:
-                    return <TextMsg message={message} />
-                }
-              })()}
-            </Box>
-          ))}
-          {isTyping ? (
+        <Stack direction="row" justifyContent={"center"}>
+          <Box
+            sx={{
+              backgroundColor: "#ebebeb",
+              borderRadius: 1.5,
+              width: "max-content",
+            }}
+          >
+            <Button onClick={loadMore}>{"Load more..."}</Button>
+          </Box>
+        </Stack>
+        <Stack spacing={3} direction={"column-reverse"}>
+          {messages.map((message) => {
+            switch (message.message_type) {
+              case MessageTypeEnum.IMAGE:
+                return <MediaMsg key={message._id} message={message} />
+              case MessageTypeEnum.DOCUMENT:
+                return <DocMsg key={message._id} message={message} />
+              case MessageTypeEnum.QUOTE_OFFER:
+                return (
+                  <QuoteMsg
+                    key={message._id}
+                    message={message}
+                    messages={messages}
+                    setMessages={setMessages}
+                  />
+                )
+              case MessageTypeEnum.ACCEPT_QUOTE_MESSAGE:
+                return (
+                  <AcceptRejectMsg
+                    key={message._id}
+                    message={message}
+                    accepted={true}
+                  />
+                )
+              case MessageTypeEnum.REJECT_QUOTE_MESSAGE:
+                return (
+                  <AcceptRejectMsg
+                    key={message._id}
+                    message={message}
+                    accepted={false}
+                  />
+                )
+              case MessageTypeEnum.COMPLETED_MESSAGE:
+                return <CompleteReviewMsg key={message._id} message={message} />
+              case MessageTypeEnum.REVIEWED_MESSAGE:
+                return <CompleteReviewMsg key={message._id} message={message} />
+              default:
+                return <TextMsg key={message._id} message={message} />
+            }
+          })}
+          {isTyping && (
             <Box
               px={1.5}
               py={1.5}
@@ -90,8 +102,6 @@ function Messages({
                 {"Typing..."}
               </Typography>
             </Box>
-          ) : (
-            <></>
           )}
         </Stack>
         <Box ref={scrollRef} mt={0} />
