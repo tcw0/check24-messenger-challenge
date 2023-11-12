@@ -11,6 +11,14 @@ function Messages({
   messages: MessageDto[]
   loading: boolean
 }) {
+  const scrollRef = React.useRef<null | HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages])
+
   return (
     <Box
       display="flex"
@@ -34,6 +42,7 @@ function Messages({
               }
             })}
           </Stack>
+          <Box ref={scrollRef} mt={0} />
         </Box>
       )}
     </Box>
