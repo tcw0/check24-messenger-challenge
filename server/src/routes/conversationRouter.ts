@@ -4,7 +4,10 @@ import {
   getConversations,
   postConversation,
   acceptConversation,
-  rejectConversation
+  rejectConversation,
+  completeConversation,
+  reviewConversation,
+  deleteConversation
 } from "../controllers/conversationController"
 
 const conversationRouter = () => {
@@ -17,6 +20,12 @@ const conversationRouter = () => {
   router.put("/conversations/accept/:conversationId", acceptConversation)
   router.use("/conversations/reject", protect)
   router.put("/conversations/reject/:conversationId", rejectConversation)
+  router.use("/conversations/complete", protect)
+  router.put("/conversations/complete/:conversationId", completeConversation)
+  router.use("/conversations/review", protect)
+  router.put("/conversations/review/:conversationId", reviewConversation)
+  router.use("/conversations/delete", protect)
+  router.put("/conversations/delete/:conversationId", deleteConversation)
 
   return router
 }

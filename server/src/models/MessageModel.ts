@@ -8,6 +8,8 @@ export enum MessageTypeEnum {
   STANDARD_MESSAGE = "standard_message",
   IMAGE = "image",
   DOCUMENT = "document",
+  COMPLETED_MESSAGE = "completed_message",
+  REVIEWED_MESSAGE = "reviewed_message",
 }
 
 export interface MessageDocument extends Document {

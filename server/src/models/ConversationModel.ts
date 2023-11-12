@@ -4,6 +4,8 @@ export enum ConversationStateEnum {
   QUOTED = "quoted",
   ACCEPTED = "accepted",
   REJECTED = "rejected",
+  COMPLETED = "completed",
+  REVIEWED = "reviewed",
 }
 
 export interface ConversationDocument extends Document {
