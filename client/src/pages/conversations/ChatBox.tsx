@@ -77,7 +77,7 @@ const ChatBox = () => {
       room: conversationContext.selectedConversation?._id,
       userId: authContext.userId,
     })
-    console.log("Send Message Image")
+
     if (event) {
       event.preventDefault()
     }
@@ -111,8 +111,7 @@ const ChatBox = () => {
         return
       }
 
-      console.log("Post Image")
-
+      console.log("Sending message", newMessage)
       const { data } = await axios.post(
         `/api/messages`,
         {
@@ -122,9 +121,7 @@ const ChatBox = () => {
         },
         config
       )
-      console.log("Get image", data)
 
-      console.log("Emit message")
       socket.emit("new message", data)
       setMessages([...messages, data])
       conversationContext.setFetchConversations((val) => !val)
@@ -134,6 +131,7 @@ const ChatBox = () => {
   }
 
   const updateUnread = async (conversationId: string) => {
+    console.log("Updating unread")
     try {
       if (!authContext.authToken) {
         snackbarContext.showSnackBarWithMessage(
@@ -150,7 +148,7 @@ const ChatBox = () => {
       }
 
       await axios.put(`/api/messages/unread/${conversationId}`, {}, config)
-      console.log("Updated unread")
+      console.log("ChatBox: Updated unread")
     } catch (error) {
       snackbarContext.showSnackBarWithError(error)
     }
@@ -201,7 +199,7 @@ const ChatBox = () => {
     socket.on("typing", ({ room, userId }) => {
       if (
         userId !== authContext.userId &&
-        room === conversationContext.selectedConversation?._id
+        room === selectedConversationCompare?._id
       ) {
         setIsTyping(true)
       }
@@ -210,7 +208,7 @@ const ChatBox = () => {
     socket.on("stop typing", ({ room, userId }) => {
       if (
         userId !== authContext.userId &&
-        room === conversationContext.selectedConversation?._id
+        room === selectedConversationCompare?._id
       ) {
         setIsTyping(false)
       }
@@ -219,11 +217,13 @@ const ChatBox = () => {
 
   React.useEffect(() => {
     socket.on("message received", (newMessageRecieved) => {
+      console.log("Message received", newMessageRecieved)
       if (
-        !selectedConversationCompare ||
+        selectedConversationCompare &&
         selectedConversationCompare._id ===
           newMessageRecieved.conversation_id._id
       ) {
+        console.log("In here")
         setMessages([...messages, newMessageRecieved])
         updateUnread(newMessageRecieved.conversation_id._id)
         conversationContext.setFetchConversations(
