@@ -1,4 +1,5 @@
-import * as React from "react"
+import {useEffect, useContext, useState} from "react"
+import { useNavigate } from "react-router-dom"
 
 // mui components
 import { Box, Button, Stack } from "@mui/material"
@@ -6,9 +7,19 @@ import { Box, Button, Stack } from "@mui/material"
 // references
 import Logo from "../../assets/logo_white.png"
 import LoginSignup from "./LoginSignup"
+import { AuthContext } from "../../contexts/AuthContext/AuthContext"
 
 export default function Homepage() {
-  const [openLogin, setOpenLogin] = React.useState(false)
+  const navigate = useNavigate()
+  const authContext = useContext(AuthContext)
+
+  useEffect(() => {
+    if (authContext.authToken) {
+      navigate("/app")
+    }
+  }, [navigate, authContext.authToken])
+
+  const [openLogin, setOpenLogin] = useState(false)
 
   const handleLogin = () => {
     setOpenLogin(true)
@@ -18,7 +29,7 @@ export default function Homepage() {
     <>
       <Stack
         sx={{
-          background: "linear-gradient(45deg, #011330, #16376f)",
+          background: "linear-gradient(45deg, #000000, #16376f)",
           width: "100%",
           height: "100vh",
           display: "flex",
@@ -49,7 +60,7 @@ export default function Homepage() {
             textTransform: "none",
           }}
         >
-          Log in
+          Log in or Sign up
         </Button>
       </Stack>
       <LoginSignup openLogin={openLogin} setOpenLogin={setOpenLogin} />

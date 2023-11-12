@@ -1,11 +1,14 @@
 import React from "react"
 import axios from "axios"
+import { useNavigate } from "react-router-dom"
 
 // mui components
-import { Link, TextField, Box, Tab } from "@mui/material"
+import { TextField, Box, Tab } from "@mui/material"
 import { TabContext, TabList, LoadingButton } from "@mui/lab"
+import CheckIcon from "@mui/icons-material/Check"
 
 // references
+import { AuthContext } from "../../contexts/AuthContext/AuthContext"
 import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
 
 export default function Signup({ handleClose }: { handleClose: () => void }) {
@@ -26,8 +29,10 @@ export default function Signup({ handleClose }: { handleClose: () => void }) {
     return repeatedPassword === password
   }
 
+  const authContext = React.useContext(AuthContext)
   const { showSnackBarWithError, showSnackBarWithMessage } =
     React.useContext(SnackbarContext)
+  const navigate = useNavigate()
 
   const sendSignup = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -43,7 +48,7 @@ export default function Signup({ handleClose }: { handleClose: () => void }) {
 
       const user_type = tab === "1" ? "customer" : "service_provider"
 
-      await axios.post(
+      const { data } = await axios.post(
         "/api/user/register",
         {
           name,
@@ -57,35 +62,22 @@ export default function Signup({ handleClose }: { handleClose: () => void }) {
         },
         config
       )
-
+      authContext.login(
+        data.token,
+        data.id,
+        data.name,
+        data.picture,
+        true,
+        data.user_type
+      )
       handleClose()
       showSnackBarWithMessage("User created successfully.", "success")
+      navigate("/app")
     } catch (error) {
       showSnackBarWithError(error)
     }
 
     setLoading(false)
-
-    // if (newAddress.street === "") {
-    //   showSnackBarWithMessage("Please select a valid address.", "error")
-    // } else if (!newAddress.street.match(/\d/)) {
-    //   showSnackBarWithMessage("Please enter a house number.", "error")
-    // } else {
-    //   const newUser: NewUserDto = {
-    //     name,
-    //     email: email.toLowerCase(),
-    //     password,
-    //     address: newAddress,
-    //   }
-
-    //   try {
-    //     await UsersService.createUser(newUser)
-    //     handleClose()
-    //     showSnackBarWithMessage("User created successfully.", "success")
-    //   } catch (error) {
-    //     showSnackBarWithError(error)
-    //   }
-    // }
   }
 
   const handleChange = (event: React.SyntheticEvent, newTab: string) => {
@@ -242,19 +234,26 @@ export default function Signup({ handleClose }: { handleClose: () => void }) {
           }}
         />
       )}
-      <LoadingButton color="secondary" component="label" loading={loading}>
-        Upload Photo
-        <input
-          type="file"
-          accept=".png, .jpg, .jpeg, .gif"
-          style={{ display: "none" }}
-          onChange={handleUploadProfilePicture}
-        />
-      </LoadingButton>
+      <Box display="flex" justifyContent="start" alignItems="center" mt={1}>
+        <LoadingButton
+          variant="contained"
+          color="secondary"
+          component="label"
+          loading={loading}
+        >
+          Upload Profile Picture
+          <input
+            type="file"
+            accept=".png, .jpg, .jpeg, .gif"
+            style={{ display: "none" }}
+            onChange={handleUploadProfilePicture}
+          />
+        </LoadingButton>
+        {picture && (
+          <CheckIcon fontSize="large" sx={{ color: "green", marginLeft: 2 }} />
+        )}
+      </Box>
 
-      <Link href="/" variant="body2">
-        Privacy Policy
-      </Link>
       <LoadingButton
         type="submit"
         fullWidth

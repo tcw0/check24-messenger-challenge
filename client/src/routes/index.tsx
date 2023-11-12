@@ -8,7 +8,7 @@ import {
 import { Navigate, useRoutes } from "react-router-dom"
 
 // layouts
-import DashboardLayout from "../layouts/dashboard"
+import SideNav from "../components/SideNav"
 
 // config
 import { DEFAULT_PATH } from "../config"
@@ -18,7 +18,7 @@ const Loadable =
   <P extends object>(Component: LazyExoticComponent<ComponentType<P>>) =>
   (props: PropsWithoutRef<P>) => {
     return (
-      <Suspense fallback={<LoadingScreen />}>
+      <Suspense fallback={<LoadingScreen open={true} />}>
         <Component {...props} />
       </Suspense>
     )
@@ -28,7 +28,7 @@ export default function Router() {
   return useRoutes([
     {
       path: "/auth",
-      element: <Homepage/>,
+      element: <Homepage />,
       children: [
         {
           path: "login",
@@ -38,10 +38,10 @@ export default function Router() {
     },
     {
       path: "/",
-      element: <DashboardLayout />,
+      element: <SideNav />,
       children: [
         { element: <Navigate to={DEFAULT_PATH} replace />, index: true },
-        { path: "app", element: <GeneralApp /> },
+        { path: "app", element: <ChatPage /> },
 
         { path: "404", element: <Page404 /> },
         { path: "*", element: <Navigate to="/404" replace /> },
@@ -51,7 +51,7 @@ export default function Router() {
   ])
 }
 
-const GeneralApp = Loadable(lazy(() => import("../pages/dashboard/GeneralApp")))
+const ChatPage = Loadable(lazy(() => import("../pages/conversations/ChatPage")))
 const Page404 = Loadable(lazy(() => import("../pages/Page404")))
 const Homepage = Loadable(lazy(() => import("../pages/auth/Homepage")))
 const LoginSignup = Loadable(lazy(() => import("../pages/auth/LoginSignup")))
