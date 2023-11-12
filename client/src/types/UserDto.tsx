@@ -11,7 +11,7 @@ export type UserDto = {
   url?: string
   picture: string
   registeredSince: Date
-  rating: number
+  ratings: number[]
   address_id: string
   user_type: UserTypeEnum
 }

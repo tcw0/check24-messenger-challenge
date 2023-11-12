@@ -75,6 +75,7 @@ export const TextMsg = ({ message }: { message: MessageDto }) => {
           borderRadius: 1.5,
           width: "max-content",
           maxWidth: "70%",
+          minWidth: "10%",
         }}
       >
         <Typography
@@ -329,6 +330,7 @@ export const QuoteMsg = ({
           borderRadius: 1.5,
           width: "max-content",
           maxWidth: "70%",
+          minWidth: "20%",
           minHeight: "100px",
         }}
       >

@@ -42,7 +42,7 @@ export const createNewUser = asyncHandler(async (req, res) => {
     url: url,
     picture: picture,
     registeredSince: new Date(),
-    rating: -1,
+    ratings: [],
     address: address,
     user_type: convertUserType(user_type),
   })
@@ -105,5 +105,3 @@ export const getServiceProvider = asyncHandler(async (req, res) => {
 
   res.status(200).json(service_providers)
 })
-
-

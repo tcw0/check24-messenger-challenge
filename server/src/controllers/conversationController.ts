@@ -299,6 +299,7 @@ export const completeConversation = asyncHandler(
 export const reviewConversation = asyncHandler(
   async (req: Request<{ conversationId: mongoose.Types.ObjectId }>, res) => {
     const { conversationId } = req.params
+    const { rating } = req.body
 
     if (!conversationId) {
       res.status(400).send()
@@ -318,6 +319,10 @@ export const reviewConversation = asyncHandler(
         )
       }
 
+      await UserService.findByIdAndUpdate(conversation.service_provider_id, {
+        $push: { ratings: rating },
+      })
+
       await ConversationService.updateOne(
         { _id: conversationId },
         { $set: { state: ConversationStateEnum.REVIEWED } }
@@ -326,7 +331,7 @@ export const reviewConversation = asyncHandler(
       let reviewedMessage = await MessageService.create({
         conversation_id: conversationId,
         message_type: MessageTypeEnum.REVIEWED_MESSAGE,
-        text: "Finalized review",
+        text: "Finalized review: " + rating + " stars",
         sender_type: UserTypeEnum.CUSTOMER,
         created_at: Date(),
         updated_at: Date(),

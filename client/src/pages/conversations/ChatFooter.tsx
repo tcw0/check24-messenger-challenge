@@ -66,6 +66,7 @@ function ChatFooter({
   const [openPicker, setOpenPicker] = React.useState(false)
   const [message, setMessage] = React.useState("")
   const [isQuote, setIsQuote] = React.useState(false)
+  const [disableCheckbox, setDisableCheckbox] = React.useState(false)
 
   const snackbarContext = React.useContext(SnackbarContext)
   const authContext = React.useContext(AuthContext)
@@ -170,6 +171,17 @@ function ChatFooter({
                 setMessage(event.target.value)
                 typingHandler()
               }}
+              disabled={
+                conversationContext.selectedConversation?.state ===
+                  ConversationStateEnum.REJECTED ||
+                conversationContext.selectedConversation?.state ===
+                  ConversationStateEnum.COMPLETED ||
+                conversationContext.selectedConversation?.state ===
+                  ConversationStateEnum.REVIEWED ||
+                conversationContext.selectedConversation?.deleted_at
+                  ? true
+                  : false
+              }
               fullWidth
               placeholder="Write a message..."
               variant="filled"
@@ -233,6 +245,7 @@ function ChatFooter({
                 endAdornment: (
                   <>
                     {authContext.userType !== "customer" &&
+                      !disableCheckbox &&
                       conversationContext.selectedConversation?.state ===
                         ConversationStateEnum.QUOTED && (
                         <Stack sx={{ position: "relative" }}>
@@ -274,6 +287,11 @@ function ChatFooter({
                   event
                 )
                 setMessage("")
+
+                if (isQuote) {
+                  setDisableCheckbox(true)
+                  setIsQuote(false)
+                }
               }}
             >
               <IconButton disabled={!message} type="submit">

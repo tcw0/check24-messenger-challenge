@@ -14,7 +14,7 @@ export interface UserDocument extends Document {
   url?: string
   picture: string
   registeredSince: Date
-  rating: number
+  ratings: number[]
   address_id: ObjectId
   user_type: UserTypeEnum
 }
@@ -36,7 +36,7 @@ const UserSchema = new Schema({
       "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
   },
   registeredSince: { type: Schema.Types.Date, required: true },
-  rating: { type: Schema.Types.Number, required: true },
+  ratings: { type: [Schema.Types.Number], required: true },
   address: { type: Schema.Types.String, required: true },
   user_type: {
     type: Schema.Types.String,

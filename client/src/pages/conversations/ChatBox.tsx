@@ -147,7 +147,6 @@ const ChatBox = () => {
       }
 
       await axios.put(`/api/messages/unread/${conversationId}`, {}, config)
-      console.log("ChatBox: Updated unread")
     } catch (error) {
       snackbarContext.showSnackBarWithError(error)
     }
@@ -222,7 +221,6 @@ const ChatBox = () => {
         selectedConversationCompare._id ===
           newMessageRecieved.conversation_id._id
       ) {
-        console.log("In here")
         setMessages([...messages, newMessageRecieved])
         updateUnread(newMessageRecieved.conversation_id._id)
       }
@@ -281,7 +279,7 @@ const ChatBox = () => {
     return false
   }
 
-  const handleReview = async (): Promise<boolean> => {
+  const handleReview = async (rating: number): Promise<boolean> => {
     try {
       if (!selectedConversationCompare) {
         snackbarContext.showSnackBarWithMessage(
@@ -307,7 +305,7 @@ const ChatBox = () => {
 
       const { data } = await axios.put(
         `/api/conversations/review/${selectedConversationCompare._id}`,
-        {},
+        { rating },
         config
       )
       console.log("Reviewed conversation", data)

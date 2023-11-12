@@ -7,6 +7,7 @@ import {
   Menu,
   MenuItem,
   Popover,
+  Rating,
   Stack,
   Typography,
 } from "@mui/material"
@@ -15,6 +16,8 @@ import EmailIcon from "@mui/icons-material/Email"
 import PhoneIcon from "@mui/icons-material/Phone"
 import LanguageIcon from "@mui/icons-material/Language"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
+import SendIcon from "@mui/icons-material/Send"
+
 import { ConversationContext } from "../../contexts/ConversationContext/ConversationContext"
 import { AuthContext } from "../../contexts/AuthContext/AuthContext"
 import { ConversationStateEnum } from "../../types/ConversationDto"
@@ -25,7 +28,7 @@ function ChatHeader({
   handleDelete,
 }: {
   handleComplete: () => Promise<boolean>
-  handleReview: () => Promise<boolean>
+  handleReview: (rating: number) => Promise<boolean>
   handleDelete: () => Promise<boolean>
 }) {
   const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(
@@ -38,9 +41,12 @@ function ChatHeader({
     null
   )
   const [urlAnchorEl, setUrlAnchorEl] = React.useState<null | HTMLElement>(null)
-  const [disableComplete, setDisableComplete] = React.useState(false)
-  const [disableReview, setDisableReview] = React.useState(false)
-  const [disableDelete, setDisableDelete] = React.useState(false)
+  const [disableComplete, setDisableComplete] = React.useState(true)
+  const [disableReview, setDisableReview] = React.useState(true)
+  const [disableDelete, setDisableDelete] = React.useState(true)
+  const [reviewAnchorEl, setReviewAnchorEl] =
+    React.useState<null | HTMLElement>(null)
+  const [ratingStars, setRatingStars] = React.useState<number>(5)
 
   const conversationContext = React.useContext(ConversationContext)
   const authContext = React.useContext(AuthContext)
@@ -71,6 +77,13 @@ function ChatHeader({
   }
   const handleCloseUrl = () => {
     setUrlAnchorEl(null)
+  }
+
+  const handleReviewClick = (event: MouseEvent<HTMLElement>) => {
+    setReviewAnchorEl(event.currentTarget)
+  }
+  const handleCloseReview = () => {
+    setReviewAnchorEl(null)
   }
 
   const name = () => {
@@ -135,6 +148,18 @@ function ChatHeader({
       }
     }
   }
+
+  React.useEffect(() => {
+    const conversationState = conversationContext.selectedConversation?.state
+
+    if (conversationState === ConversationStateEnum.ACCEPTED) {
+      setDisableComplete(false)
+    } else if (conversationState === ConversationStateEnum.COMPLETED) {
+      setDisableReview(false)
+    } else if (conversationState === ConversationStateEnum.REVIEWED) {
+      setDisableDelete(false)
+    }
+  }, [conversationContext.selectedConversation])
 
   return (
     <Box
@@ -237,13 +262,10 @@ function ChatHeader({
                   onClick={async () => {
                     if (await handleComplete()) {
                       setDisableComplete(true)
+                      setDisableReview(false)
                     }
                   }}
-                  disabled={
-                    disableComplete ||
-                    conversationContext.selectedConversation?.state !==
-                      ConversationStateEnum.ACCEPTED
-                  }
+                  disabled={disableComplete}
                 >
                   <Stack
                     sx={{ minWidth: 100 }}
@@ -254,38 +276,66 @@ function ChatHeader({
                     <Typography>Complete chat</Typography>
                   </Stack>
                 </MenuItem>
-                <MenuItem
-                  onClick={async () => {
-                    if (await handleReview()) {
-                      setDisableReview(true)
-                    }
-                  }}
-                  disabled={
-                    disableReview ||
-                    conversationContext.selectedConversation?.state !==
-                      ConversationStateEnum.COMPLETED
-                  }
-                >
-                  <Stack
-                    sx={{ minWidth: 100 }}
-                    direction="row"
-                    alignItems={"center"}
-                    justifyContent="space-between"
-                  >
-                    <Typography>Leave a review</Typography>
-                  </Stack>
-                </MenuItem>
+                {authContext.userType === "customer" && (
+                  <>
+                    <MenuItem
+                      onClick={handleReviewClick}
+                      disabled={disableReview}
+                    >
+                      <Stack
+                        sx={{ minWidth: 100 }}
+                        direction="row"
+                        alignItems={"center"}
+                        justifyContent="space-between"
+                      >
+                        <Typography>Leave a review</Typography>
+                      </Stack>
+                    </MenuItem>
+                    <Popover
+                      anchorEl={reviewAnchorEl}
+                      open={Boolean(reviewAnchorEl)}
+                      onClose={handleCloseReview}
+                      anchorOrigin={{ vertical: "center", horizontal: "left" }}
+                      transformOrigin={{
+                        vertical: "center",
+                        horizontal: "right",
+                      }}
+                    >
+                      <Box display={"flex"} alignItems={"center"} p={2}>
+                        <Rating
+                          size="large"
+                          value={ratingStars}
+                          onChange={(
+                            _: React.SyntheticEvent<Element, Event>,
+                            newValue: number | null
+                          ) => setRatingStars(newValue || 5)}
+                          sx={{
+                            pr: 2,
+                          }}
+                        />
+                        <IconButton
+                          onClick={async (event) => {
+                            if (await handleReview(ratingStars)) {
+                              setDisableReview(true)
+                              setDisableDelete(false)
+                              handleReviewClick(event)
+                            }
+                          }}
+                          color="primary"
+                        >
+                          <SendIcon />
+                        </IconButton>
+                      </Box>
+                    </Popover>
+                  </>
+                )}
                 <MenuItem
                   onClick={async () => {
                     if (await handleDelete()) {
                       setDisableDelete(true)
                     }
                   }}
-                  disabled={
-                    disableDelete ||
-                    conversationContext.selectedConversation?.state !==
-                      ConversationStateEnum.REVIEWED
-                  }
+                  disabled={disableDelete}
                 >
                   <Stack
                     sx={{ minWidth: 100 }}
