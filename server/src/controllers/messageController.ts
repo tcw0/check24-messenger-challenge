@@ -124,7 +124,7 @@ export const updateUnreadByConversationId = asyncHandler(
     }
 
     try {
-      await MessageService.updateMany(
+      const updatedMessages = await MessageService.updateMany(
         {
           conversation_id: conversationId,
           sender_id: { $ne: (req.user as User).id },
@@ -136,7 +136,7 @@ export const updateUnreadByConversationId = asyncHandler(
         }
       )
 
-      res.sendStatus(200)
+      res.send(updatedMessages)
     } catch (error) {
       res.status(400).send()
       console.log(error)

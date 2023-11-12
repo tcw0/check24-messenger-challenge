@@ -226,10 +226,11 @@ const ChatBox = () => {
         console.log("In here")
         setMessages([...messages, newMessageRecieved])
         updateUnread(newMessageRecieved.conversation_id._id)
-        conversationContext.setFetchConversations(
-          !conversationContext.fetchConversations
-        )
       }
+
+      conversationContext.setFetchConversations(
+        !conversationContext.fetchConversations
+      )
     })
   })
 
