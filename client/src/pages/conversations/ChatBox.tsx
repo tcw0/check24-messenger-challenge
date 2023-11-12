@@ -13,8 +13,7 @@ import axios from "axios"
 import io, { Socket } from "socket.io-client"
 import { ConversationDto } from "../../types/ConversationDto"
 const ENDPOINT = "http://localhost:3000"
-let socket: Socket,
-  selectedConversationCompare: ConversationDto | undefined
+let socket: Socket, selectedConversationCompare: ConversationDto | undefined
 
 const ChatBox = () => {
   const [messages, setMessages] = React.useState<MessageDto[]>([])
@@ -242,11 +241,133 @@ const ChatBox = () => {
     }
   }, [messages, isTyping])
 
+  const handleComplete = async (): Promise<boolean> => {
+    try {
+      if (!selectedConversationCompare) {
+        snackbarContext.showSnackBarWithMessage(
+          "No conversation selected",
+          "warning"
+        )
+        return false
+      }
+
+      if (!authContext.authToken) {
+        snackbarContext.showSnackBarWithMessage(
+          "Please log in to accept quotes",
+          "warning"
+        )
+        return false
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${authContext.authToken}`,
+        },
+      }
+
+      const { data } = await axios.put(
+        `/api/conversations/complete/${selectedConversationCompare._id}`,
+        {},
+        config
+      )
+      console.log("Completed conversation", data)
+      socket.emit("new message", data)
+      setMessages([...messages, data])
+      conversationContext.setFetchConversations((val) => !val)
+      return true
+    } catch (error) {
+      snackbarContext.showSnackBarWithError(error)
+    }
+    return false
+  }
+
+  const handleReview = async (): Promise<boolean> => {
+    try {
+      if (!selectedConversationCompare) {
+        snackbarContext.showSnackBarWithMessage(
+          "No conversation selected",
+          "warning"
+        )
+        return false
+      }
+
+      if (!authContext.authToken) {
+        snackbarContext.showSnackBarWithMessage(
+          "Please log in to accept quotes",
+          "warning"
+        )
+        return false
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${authContext.authToken}`,
+        },
+      }
+
+      const { data } = await axios.put(
+        `/api/conversations/review/${selectedConversationCompare._id}`,
+        {},
+        config
+      )
+      console.log("Reviewed conversation", data)
+      socket.emit("new message", data)
+      setMessages([...messages, data])
+      conversationContext.setFetchConversations((val) => !val)
+      return true
+    } catch (error) {
+      snackbarContext.showSnackBarWithError(error)
+    }
+    return false
+  }
+
+  const handleDelete = async (): Promise<boolean> => {
+    try {
+      if (!selectedConversationCompare) {
+        snackbarContext.showSnackBarWithMessage(
+          "No conversation selected",
+          "warning"
+        )
+        return false
+      }
+
+      if (!authContext.authToken) {
+        snackbarContext.showSnackBarWithMessage(
+          "Please log in to accept quotes",
+          "warning"
+        )
+        return false
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${authContext.authToken}`,
+        },
+      }
+
+      const { data } = await axios.put(
+        `/api/conversations/delete/${selectedConversationCompare._id}`,
+        {},
+        config
+      )
+      console.log("Deleted conversation", data)
+      conversationContext.setFetchConversations((val) => !val)
+      return true
+    } catch (error) {
+      snackbarContext.showSnackBarWithError(error)
+    }
+    return false
+  }
+
   return (
     <>
       {conversationContext.selectedConversation ? (
         <Stack height={"100%"} maxHeight={"100vh"} width={"auto"}>
-          <ChatHeader />
+          <ChatHeader
+            handleComplete={handleComplete}
+            handleReview={handleReview}
+            handleDelete={handleDelete}
+          />
           <Box
             width={"100%"}
             sx={{

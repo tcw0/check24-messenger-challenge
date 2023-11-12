@@ -128,6 +128,7 @@ function ConversationList() {
                         searchParams.set("id", conversation._id)
                         setSearchParams(searchParams)
                       }}
+                      disabled={conversation.deleted_at ? true : false}
                     >
                       <ChatElement conversation={conversation} />
                     </ListItemButton>

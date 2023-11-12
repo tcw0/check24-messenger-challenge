@@ -464,3 +464,57 @@ export const AcceptRejectMsg = ({
     </Stack>
   )
 }
+
+export const CompleteReviewMsg = ({ message }: { message: MessageDto }) => {
+  const authContext = React.useContext(AuthContext)
+
+  const outgoing = () => {
+    if (authContext.userId == message.sender_id._id) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  return (
+    <Stack direction="row" justifyContent={outgoing() ? "end" : "start"}>
+      <Box
+        display={"flex"}
+        flexDirection={"column"}
+        alignItems={"center"}
+        px={1.5}
+        pt={1.5}
+        pb={0.5}
+        sx={{
+          backgroundColor: "grey",
+          borderRadius: 1.5,
+          width: "max-content",
+          maxWidth: "70%",
+          minHeight: "100px",
+        }}
+      >
+        <Box height={"100%"} display={"flex"} alignItems={"center"}>
+          <Typography variant="body1" color={"#fff"} fontWeight={"bold"}>
+            {message.text}
+          </Typography>
+        </Box>
+        <Box
+          flexDirection="row"
+          display={"flex"}
+          justifyContent={outgoing() ? "end" : "start"}
+          alignItems={"center"}
+          width={"100%"}
+        >
+          <Typography fontSize={10} color={"#fff"}>
+            {formatTime(message.updated_at)}
+          </Typography>
+          {message.read_at && outgoing() && (
+            <DoneAllOutlinedIcon
+              sx={{ color: "white", height: "13px", width: "13px", ml: "5px" }}
+            />
+          )}
+        </Box>
+      </Box>
+    </Stack>
+  )
+}

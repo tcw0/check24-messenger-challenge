@@ -21,6 +21,8 @@ import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined"
 import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
 import { MessageTypeEnum } from "../../types/MessageDto"
 import { AuthContext } from "../../contexts/AuthContext/AuthContext"
+import { ConversationContext } from "../../contexts/ConversationContext/ConversationContext"
+import { ConversationStateEnum } from "../../types/ConversationDto"
 
 const StyledInput = styled(TextField)(() => ({
   "& .MuiInputBase-input": {
@@ -67,6 +69,7 @@ function ChatFooter({
 
   const snackbarContext = React.useContext(SnackbarContext)
   const authContext = React.useContext(AuthContext)
+  const conversationContext = React.useContext(ConversationContext)
 
   const sendImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -229,19 +232,21 @@ function ChatFooter({
                 ),
                 endAdornment: (
                   <>
-                    {authContext.userType !== "customer" && (
-                      <Stack sx={{ position: "relative" }}>
-                        <InputAdornment position="end">
-                          <Typography variant="body2">Quote</Typography>
-                          <Checkbox
-                            checked={isQuote}
-                            onChange={(event) => {
-                              setIsQuote(event.target.checked)
-                            }}
-                          />
-                        </InputAdornment>
-                      </Stack>
-                    )}
+                    {authContext.userType !== "customer" &&
+                      conversationContext.selectedConversation?.state ===
+                        ConversationStateEnum.QUOTED && (
+                        <Stack sx={{ position: "relative" }}>
+                          <InputAdornment position="end">
+                            <Typography variant="body2">Quote</Typography>
+                            <Checkbox
+                              checked={isQuote}
+                              onChange={(event) => {
+                                setIsQuote(event.target.checked)
+                              }}
+                            />
+                          </InputAdornment>
+                        </Stack>
+                      )}
                   </>
                 ),
               }}

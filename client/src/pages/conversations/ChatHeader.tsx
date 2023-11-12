@@ -19,7 +19,15 @@ import { ConversationContext } from "../../contexts/ConversationContext/Conversa
 import { AuthContext } from "../../contexts/AuthContext/AuthContext"
 import { ConversationStateEnum } from "../../types/ConversationDto"
 
-function ChatHeader() {
+function ChatHeader({
+  handleComplete,
+  handleReview,
+  handleDelete,
+}: {
+  handleComplete: () => Promise<boolean>
+  handleReview: () => Promise<boolean>
+  handleDelete: () => Promise<boolean>
+}) {
   const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(
     null
   )
@@ -30,6 +38,9 @@ function ChatHeader() {
     null
   )
   const [urlAnchorEl, setUrlAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [disableComplete, setDisableComplete] = React.useState(false)
+  const [disableReview, setDisableReview] = React.useState(false)
+  const [disableDelete, setDisableDelete] = React.useState(false)
 
   const conversationContext = React.useContext(ConversationContext)
   const authContext = React.useContext(AuthContext)
@@ -222,7 +233,60 @@ function ChatHeader() {
           >
             <Box p={1}>
               <Stack spacing={1}>
-                <MenuItem onClick={handleCloseMenu}>
+                <MenuItem
+                  onClick={async () => {
+                    if (await handleComplete()) {
+                      setDisableComplete(true)
+                    }
+                  }}
+                  disabled={
+                    disableComplete ||
+                    conversationContext.selectedConversation?.state !==
+                      ConversationStateEnum.ACCEPTED
+                  }
+                >
+                  <Stack
+                    sx={{ minWidth: 100 }}
+                    direction="row"
+                    alignItems={"center"}
+                    justifyContent="space-between"
+                  >
+                    <Typography>Complete chat</Typography>
+                  </Stack>
+                </MenuItem>
+                <MenuItem
+                  onClick={async () => {
+                    if (await handleReview()) {
+                      setDisableReview(true)
+                    }
+                  }}
+                  disabled={
+                    disableReview ||
+                    conversationContext.selectedConversation?.state !==
+                      ConversationStateEnum.COMPLETED
+                  }
+                >
+                  <Stack
+                    sx={{ minWidth: 100 }}
+                    direction="row"
+                    alignItems={"center"}
+                    justifyContent="space-between"
+                  >
+                    <Typography>Leave a review</Typography>
+                  </Stack>
+                </MenuItem>
+                <MenuItem
+                  onClick={async () => {
+                    if (await handleDelete()) {
+                      setDisableDelete(true)
+                    }
+                  }}
+                  disabled={
+                    disableDelete ||
+                    conversationContext.selectedConversation?.state !==
+                      ConversationStateEnum.REVIEWED
+                  }
+                >
                   <Stack
                     sx={{ minWidth: 100 }}
                     direction="row"

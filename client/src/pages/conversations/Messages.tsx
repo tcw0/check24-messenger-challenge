@@ -8,6 +8,7 @@ import {
   DocMsg,
   QuoteMsg,
   AcceptRejectMsg,
+  CompleteReviewMsg,
 } from "../../components/MessageTypes"
 
 function Messages({
@@ -72,6 +73,14 @@ function Messages({
                       message={message}
                       accepted={false}
                     />
+                  )
+                case MessageTypeEnum.COMPLETED_MESSAGE:
+                  return (
+                    <CompleteReviewMsg key={message._id} message={message} />
+                  )
+                case MessageTypeEnum.REVIEWED_MESSAGE:
+                  return (
+                    <CompleteReviewMsg key={message._id} message={message} />
                   )
                 default:
                   return <TextMsg key={message._id} message={message} />

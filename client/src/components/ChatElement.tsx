@@ -3,6 +3,7 @@ import React from "react"
 import { ConversationDto } from "../types/ConversationDto"
 import { AuthContext } from "../contexts/AuthContext/AuthContext"
 import { ConversationContext } from "../contexts/ConversationContext/ConversationContext"
+import { MessageTypeEnum } from "../types/MessageDto"
 
 const truncateText = (string: string, n: number) => {
   return string?.length > n ? `${string?.slice(0, n)}...` : string
@@ -89,9 +90,38 @@ export default function ChatElement({
               {name()}
             </Typography>
             {conversation.latest_message ? (
-              <Typography variant="caption">
-                {truncateText(conversation.latest_message.text, 20)}
-              </Typography>
+              !conversation.deleted_at ? (
+                (() => {
+                  switch (conversation.latest_message.message_type) {
+                    case MessageTypeEnum.COMPLETED_MESSAGE:
+                      return (
+                        <Typography variant="caption" color="grey">
+                          {"<"}
+                          {truncateText(conversation.latest_message.text, 20)}
+                          {">"}
+                        </Typography>
+                      )
+                    case MessageTypeEnum.REVIEWED_MESSAGE:
+                      return (
+                        <Typography variant="caption" color="grey">
+                          {"<"}
+                          {truncateText(conversation.latest_message.text, 20)}
+                          {">"}
+                        </Typography>
+                      )
+                    default:
+                      return (
+                        <Typography variant="caption">
+                          {truncateText(conversation.latest_message.text, 20)}
+                        </Typography>
+                      )
+                  }
+                })()
+              ) : (
+                <Typography variant="caption" color="grey">
+                  {"<Chat deleted>"}
+                </Typography>
+              )
             ) : (
               <Typography variant="caption" color="grey">
                 {"<No messages yet>"}
