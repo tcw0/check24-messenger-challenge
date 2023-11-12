@@ -3,8 +3,9 @@ import axios from "axios"
 import { useNavigate } from "react-router-dom"
 
 // mui components
-import { TextField, Box, Tab, Typography } from "@mui/material"
+import { TextField, Box, Tab } from "@mui/material"
 import { TabContext, TabList, LoadingButton } from "@mui/lab"
+import CheckIcon from "@mui/icons-material/Check"
 
 // references
 import { AuthContext } from "../../contexts/AuthContext/AuthContext"
@@ -233,12 +234,7 @@ export default function Signup({ handleClose }: { handleClose: () => void }) {
           }}
         />
       )}
-      <Box
-        display="flex"
-        justifyContent="start"
-        alignItems="center"
-        mt={1}
-      >
+      <Box display="flex" justifyContent="start" alignItems="center" mt={1}>
         <LoadingButton
           variant="contained"
           color="secondary"
@@ -254,7 +250,7 @@ export default function Signup({ handleClose }: { handleClose: () => void }) {
           />
         </LoadingButton>
         {picture && (
-          <Typography textAlign="center" marginLeft={2}>Upload successful!</Typography>
+          <CheckIcon fontSize="large" sx={{ color: "green", marginLeft: 2 }} />
         )}
       </Box>
 

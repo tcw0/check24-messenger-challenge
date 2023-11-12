@@ -60,7 +60,7 @@ export default function Homepage() {
             textTransform: "none",
           }}
         >
-          Log in
+          Log in or Sign up
         </Button>
       </Stack>
       <LoginSignup openLogin={openLogin} setOpenLogin={setOpenLogin} />
