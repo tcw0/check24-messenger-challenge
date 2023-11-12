@@ -2,15 +2,23 @@ import React from "react"
 import { Box, CircularProgress, Stack, Typography } from "@mui/material"
 
 import { MessageDto, MessageTypeEnum } from "../../types/MessageDto"
-import { TextMsg, MediaMsg, DocMsg, QuoteMsg } from "../../components/MessageTypes"
+import {
+  TextMsg,
+  MediaMsg,
+  DocMsg,
+  QuoteMsg,
+  AcceptRejectMsg,
+} from "../../components/MessageTypes"
 
 function Messages({
   messages,
+  setMessages,
   loading,
   scrollRef,
   isTyping,
 }: {
   messages: MessageDto[]
+  setMessages: React.Dispatch<React.SetStateAction<MessageDto[]>>
   loading: boolean
   scrollRef: React.MutableRefObject<HTMLDivElement | null>
   isTyping: boolean
@@ -41,7 +49,30 @@ function Messages({
                 case MessageTypeEnum.DOCUMENT:
                   return <DocMsg key={message._id} message={message} />
                 case MessageTypeEnum.QUOTE_OFFER:
-                  return <QuoteMsg key={message._id} message={message} />
+                  return (
+                    <QuoteMsg
+                      key={message._id}
+                      message={message}
+                      messages={messages}
+                      setMessages={setMessages}
+                    />
+                  )
+                case MessageTypeEnum.ACCEPT_QUOTE_MESSAGE:
+                  return (
+                    <AcceptRejectMsg
+                      key={message._id}
+                      message={message}
+                      accepted={true}
+                    />
+                  )
+                case MessageTypeEnum.REJECT_QUOTE_MESSAGE:
+                  return (
+                    <AcceptRejectMsg
+                      key={message._id}
+                      message={message}
+                      accepted={false}
+                    />
+                  )
                 default:
                   return <TextMsg key={message._id} message={message} />
               }

@@ -91,8 +91,7 @@ function ChatHeader() {
     ) {
       return true
     } else {
-      // TODO: Change to false
-      return true
+      return false
     }
   }
 

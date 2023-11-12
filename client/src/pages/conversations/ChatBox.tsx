@@ -13,7 +13,8 @@ import axios from "axios"
 import io, { Socket } from "socket.io-client"
 import { ConversationDto } from "../../types/ConversationDto"
 const ENDPOINT = "http://localhost:3000"
-let socket: Socket, selectedConversationCompare: ConversationDto | undefined
+let socket: Socket,
+  selectedConversationCompare: ConversationDto | undefined
 
 const ChatBox = () => {
   const [messages, setMessages] = React.useState<MessageDto[]>([])
@@ -131,7 +132,6 @@ const ChatBox = () => {
   }
 
   const updateUnread = async (conversationId: string) => {
-    console.log("Updating unread")
     try {
       if (!authContext.authToken) {
         snackbarContext.showSnackBarWithMessage(
@@ -259,6 +259,7 @@ const ChatBox = () => {
           >
             <Messages
               messages={messages}
+              setMessages={setMessages}
               loading={loading}
               scrollRef={scrollRef}
               isTyping={isTyping}

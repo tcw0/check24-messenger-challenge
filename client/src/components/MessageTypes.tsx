@@ -1,11 +1,18 @@
 import React from "react"
-import { Box, IconButton, Stack, Typography } from "@mui/material"
+import { Box, Fab, IconButton, Stack, Typography } from "@mui/material"
 import { useTheme } from "@mui/material/styles"
 import DoneAllOutlinedIcon from "@mui/icons-material/DoneAllOutlined"
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined"
+import CheckIcon from "@mui/icons-material/Check"
+import CloseIcon from "@mui/icons-material/Close"
+import io, { Socket } from "socket.io-client"
 
 import { MessageDto } from "../types/MessageDto"
 import { AuthContext } from "../contexts/AuthContext/AuthContext"
+import { SnackbarContext } from "../contexts/SnackbarContext/SnackbarContext"
+import axios from "axios"
+import { ConversationContext } from "../contexts/ConversationContext/ConversationContext"
+import { ConversationStateEnum } from "../types/ConversationDto"
 
 function formatTime(date: Date): string {
   const givenDate = new Date(date)
@@ -67,6 +74,7 @@ export const TextMsg = ({ message }: { message: MessageDto }) => {
           backgroundColor: outgoing() ? theme.palette.primary.main : "#fff",
           borderRadius: 1.5,
           width: "max-content",
+          maxWidth: "70%",
         }}
       >
         <Typography
@@ -210,9 +218,200 @@ export const DocMsg = ({ message }: { message: MessageDto }) => {
   )
 }
 
-export const QuoteMsg = ({ message }: { message: MessageDto }) => {
+const ENDPOINT = "http://localhost:3000"
+let socket: Socket
+
+export const QuoteMsg = ({
+  message,
+  messages,
+  setMessages,
+}: {
+  message: MessageDto
+  messages: MessageDto[]
+  setMessages: React.Dispatch<React.SetStateAction<MessageDto[]>>
+}) => {
   const theme = useTheme()
 
+  const [disabled, setDisabled] = React.useState(false)
+
+  const snackbarContext = React.useContext(SnackbarContext)
+  const authContext = React.useContext(AuthContext)
+  const conversationContext = React.useContext(ConversationContext)
+
+  React.useEffect(() => {
+    socket = io(ENDPOINT)
+  }, [])
+
+  const outgoing = () => {
+    if (authContext.userId == message.sender_id._id) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  const onAccept = async () => {
+    try {
+      if (!authContext.authToken) {
+        snackbarContext.showSnackBarWithMessage(
+          "Please log in to accept quotes",
+          "warning"
+        )
+        return
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${authContext.authToken}`,
+        },
+      }
+
+      const { data } = await axios.put(
+        `/api/conversations/accept/${message.conversation_id}`,
+        {},
+        config
+      )
+      console.log("Accepted Quote", data)
+      socket.emit("new message", data)
+      setMessages([...messages, data])
+      conversationContext.setFetchConversations((val) => !val)
+      setDisabled(true)
+    } catch (error) {
+      snackbarContext.showSnackBarWithError(error)
+    }
+  }
+
+  const onReject = async () => {
+    try {
+      if (!authContext.authToken) {
+        snackbarContext.showSnackBarWithMessage(
+          "Please log in to reject quotes",
+          "warning"
+        )
+        return
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${authContext.authToken}`,
+        },
+      }
+
+      const { data } = await axios.put(
+        `/api/conversations/reject/${message.conversation_id}`,
+        {},
+        config
+      )
+      console.log("Rejected Quote", data)
+      socket.emit("new message", data)
+      setMessages([...messages, data])
+      conversationContext.setFetchConversations((val) => !val)
+      setDisabled(true)
+    } catch (error) {
+      snackbarContext.showSnackBarWithError(error)
+    }
+  }
+
+  return (
+    <Stack
+      direction={outgoing() ? "row-reverse" : "row"}
+      justifyContent={outgoing() ? "end" : "start"}
+    >
+      <Box
+        display={"flex"}
+        flexDirection={"column"}
+        alignItems={"center"}
+        px={1.5}
+        pt={1.5}
+        pb={0.5}
+        sx={{
+          backgroundColor: outgoing() ? theme.palette.primary.main : "#fff",
+          borderRadius: 1.5,
+          width: "max-content",
+          maxWidth: "70%",
+          minHeight: "100px",
+        }}
+      >
+        <Box height={"100%"} display={"flex"} alignItems={"center"}>
+          <Typography
+            variant="body2"
+            color={outgoing() ? "#fff" : theme.palette.text.primary}
+          >
+            {message.text}
+          </Typography>
+        </Box>
+
+        <Box
+          flexDirection="row"
+          display={"flex"}
+          justifyContent={outgoing() ? "end" : "start"}
+          alignItems={"center"}
+          width={"100%"}
+        >
+          <Typography
+            fontSize={10}
+            color={outgoing() ? "#fff" : theme.palette.text.primary}
+          >
+            {formatTime(message.updated_at)}
+          </Typography>
+          {message.read_at && outgoing() && (
+            <DoneAllOutlinedIcon
+              sx={{ color: "white", height: "13px", width: "13px", ml: "5px" }}
+            />
+          )}
+        </Box>
+      </Box>
+      <Stack
+        direction="column"
+        justifyContent={"space-evenly"}
+        pl={outgoing() ? 0 : 2}
+        pr={outgoing() ? 2 : 0}
+        spacing={1}
+      >
+        <Fab
+          color="success"
+          onClick={onAccept}
+          disabled={
+            outgoing() ||
+            disabled ||
+            conversationContext.selectedConversation?.state !==
+              ConversationStateEnum.QUOTED
+          }
+          sx={{
+            width: "50px",
+            height: "50px",
+          }}
+        >
+          <CheckIcon />
+        </Fab>
+        <Fab
+          color="error"
+          onClick={onReject}
+          disabled={
+            outgoing() ||
+            disabled ||
+            conversationContext.selectedConversation?.state !==
+              ConversationStateEnum.QUOTED
+          }
+          sx={{
+            width: "50px",
+            height: "50px",
+          }}
+        >
+          <CloseIcon />
+        </Fab>
+      </Stack>
+    </Stack>
+  )
+}
+
+export const AcceptRejectMsg = ({
+  message,
+  accepted,
+}: {
+  message: MessageDto
+  accepted: boolean
+}) => {
   const authContext = React.useContext(AuthContext)
 
   const outgoing = () => {
@@ -224,43 +423,44 @@ export const QuoteMsg = ({ message }: { message: MessageDto }) => {
   }
 
   return (
-    <Box
-      display={"flex"}
-      flexDirection={"column"}
-      alignItems={"center"}
-      px={1.5}
-      pt={1.5}
-      pb={0.5}
-      sx={{
-        backgroundColor: outgoing() ? theme.palette.primary.main : "#fff",
-        borderRadius: 1.5,
-        width: "100%",
-      }}
-    >
-      <Typography
-        variant="body2"
-        color={outgoing() ? "#fff" : theme.palette.text.primary}
-      >
-        {message.text}
-      </Typography>
+    <Stack direction="row" justifyContent={outgoing() ? "end" : "start"}>
       <Box
-        flexDirection="row"
         display={"flex"}
-        justifyContent={outgoing() ? "end" : "start"}
+        flexDirection={"column"}
         alignItems={"center"}
+        px={1.5}
+        pt={1.5}
+        pb={0.5}
+        sx={{
+          backgroundColor: accepted ? "#2e7d32" : "#d32f2f",
+          borderRadius: 1.5,
+          width: "max-content",
+          maxWidth: "70%",
+          minHeight: "100px",
+        }}
       >
-        <Typography
-          fontSize={10}
-          color={outgoing() ? "#fff" : theme.palette.text.primary}
+        <Box height={"100%"} display={"flex"} alignItems={"center"}>
+          <Typography variant="body1" color={"#fff"} fontWeight={"bold"}>
+            {message.text}
+          </Typography>
+        </Box>
+        <Box
+          flexDirection="row"
+          display={"flex"}
+          justifyContent={outgoing() ? "end" : "start"}
+          alignItems={"center"}
+          width={"100%"}
         >
-          {formatTime(message.updated_at)}
-        </Typography>
-        {message.read_at && outgoing() && (
-          <DoneAllOutlinedIcon
-            sx={{ color: "white", height: "13px", width: "13px", ml: "5px" }}
-          />
-        )}
+          <Typography fontSize={10} color={"#fff"}>
+            {formatTime(message.updated_at)}
+          </Typography>
+          {message.read_at && outgoing() && (
+            <DoneAllOutlinedIcon
+              sx={{ color: "white", height: "13px", width: "13px", ml: "5px" }}
+            />
+          )}
+        </Box>
       </Box>
-    </Box>
+    </Stack>
   )
 }
