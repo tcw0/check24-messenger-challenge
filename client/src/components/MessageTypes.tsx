@@ -8,7 +8,6 @@ import { MessageDto } from "../types/MessageDto"
 import { AuthContext } from "../contexts/AuthContext/AuthContext"
 
 function formatTime(date: Date): string {
-  console.log(date)
   const givenDate = new Date(date)
   const now = new Date()
   const oneDay = 24 * 60 * 60 * 1000 // milliseconds in a day
