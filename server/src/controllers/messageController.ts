@@ -19,7 +19,7 @@ export const getMessagesByConversationId = asyncHandler(
     }
 
     const page = parseInt(req.query.page as string, 10)
-    const pageSize = 10
+    const pageSize = 20
     console.log("Get page", page)
 
     if (!conversationId || isNaN(page) || page < 1) {

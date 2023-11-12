@@ -49,6 +49,21 @@ function Messages({
           </Box>
         </Stack>
         <Stack spacing={3} direction={"column-reverse"}>
+          {isTyping && (
+            <Box
+              px={1.5}
+              py={1.5}
+              sx={{
+                backgroundColor: "#ebebeb",
+                borderRadius: 1.5,
+                width: "max-content",
+              }}
+            >
+              <Typography variant="body2" color={"#8e8e8e"}>
+                {"Typing..."}
+              </Typography>
+            </Box>
+          )}
           {messages.map((message) => {
             switch (message.message_type) {
               case MessageTypeEnum.IMAGE:
@@ -88,21 +103,6 @@ function Messages({
                 return <TextMsg key={message._id} message={message} />
             }
           })}
-          {isTyping && (
-            <Box
-              px={1.5}
-              py={1.5}
-              sx={{
-                backgroundColor: "#ebebeb",
-                borderRadius: 1.5,
-                width: "max-content",
-              }}
-            >
-              <Typography variant="body2" color={"#8e8e8e"}>
-                {"Typing..."}
-              </Typography>
-            </Box>
-          )}
         </Stack>
         <Box ref={scrollRef} mt={0} />
       </Box>

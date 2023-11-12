@@ -27,6 +27,7 @@ const ChatBox = () => {
   const [hasMore, setHasMore] = React.useState(false)
 
   const scrollRef = React.useRef<null | HTMLDivElement>(null)
+  const [doScroll, setDoScroll] = React.useState(true)
 
   const conversationContext = React.useContext(ConversationContext)
   const snackbarContext = React.useContext(SnackbarContext)
@@ -83,6 +84,7 @@ const ChatBox = () => {
   const loadMore = () => {
     if (loading || !hasMore) return
     setPage((prevPage) => {
+      setDoScroll(false)
       const nextPage = prevPage + 1
       fetchMessages(nextPage)
       console.log("Loading more messages", nextPage)
@@ -251,9 +253,12 @@ const ChatBox = () => {
   })
 
   React.useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && doScroll) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" })
+    } else if (!doScroll) {
+      setDoScroll(true)
     }
+    //eslint-disable-next-line
   }, [messages, isTyping])
 
   const handleComplete = async (): Promise<boolean> => {
