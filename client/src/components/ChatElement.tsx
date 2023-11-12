@@ -3,6 +3,7 @@ import React from "react"
 import { ConversationDto } from "../types/ConversationDto"
 import { AuthContext } from "../contexts/AuthContext/AuthContext"
 import { useSearchParams } from "react-router-dom"
+import { ConversationContext } from "../contexts/ConversationContext/ConversationContext"
 
 const truncateText = (string: string, n: number) => {
   return string?.length > n ? `${string?.slice(0, n)}...` : string
@@ -42,6 +43,7 @@ export default function ChatElement({
   conversation: ConversationDto
 }) {
   const authContext = React.useContext(AuthContext)
+  const conversationContext = React.useContext(ConversationContext)
 
   const name = () => {
     if (authContext.userType === "customer") {
@@ -78,7 +80,7 @@ export default function ChatElement({
       p={2}
       onClick={() => {
         searchParams.set("id", conversation._id)
-        setSearchParams(searchParams);
+        setSearchParams(searchParams)
       }}
     >
       <Stack
@@ -108,11 +110,14 @@ export default function ChatElement({
           <Typography sx={{ fontWeight: 600 }} variant="caption">
             {formatDate(date())}
           </Typography>
-          <Badge
-            className="unread-count"
-            color="primary"
-            badgeContent={conversation.unreadMessagesCount}
-          />
+          {conversationContext.selectedConversation?._id !==
+            conversation._id && (
+            <Badge
+              className="unread-count"
+              color="primary"
+              badgeContent={conversation.unreadMessagesCount}
+            />
+          )}
         </Stack>
       </Stack>
     </Box>
