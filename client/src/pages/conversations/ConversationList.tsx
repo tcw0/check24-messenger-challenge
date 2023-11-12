@@ -76,7 +76,7 @@ function ConversationList() {
       sx={{
         position: "relative",
         height: "100vh",
-        width: 320,
+        maxWidth: 300,
         backgroundColor: "#F8FAFF",
         boxShadow: "0px 0px 2px rgba(0, 0, 0, 0.25)",
       }}
