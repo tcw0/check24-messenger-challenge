@@ -10,7 +10,7 @@ import {
   InputAdornment,
   useTheme,
   Checkbox,
-  FormControlLabel,
+  Typography,
 } from "@mui/material"
 
 import SendIcon from "@mui/icons-material/Send"
@@ -232,17 +232,12 @@ function ChatFooter({
                     {authContext.userType !== "customer" && (
                       <Stack sx={{ position: "relative" }}>
                         <InputAdornment position="end">
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={isQuote}
-                                onChange={(event) => {
-                                  setIsQuote(event.target.checked)
-                                }}
-                              />
-                            }
-                            label="Quote"
-                            labelPlacement="start"
+                          <Typography variant="body2">Quote</Typography>
+                          <Checkbox
+                            checked={isQuote}
+                            onChange={(event) => {
+                              setIsQuote(event.target.checked)
+                            }}
                           />
                         </InputAdornment>
                       </Stack>
