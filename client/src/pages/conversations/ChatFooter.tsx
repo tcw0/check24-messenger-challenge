@@ -9,18 +9,18 @@ import {
   Tooltip,
   InputAdornment,
   useTheme,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material"
 
 import SendIcon from "@mui/icons-material/Send"
-import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt"
 import InsertPhotoOutlinedIcon from "@mui/icons-material/InsertPhotoOutlined"
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined"
 import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined"
 
-import data from "@emoji-mart/data"
-import Picker from "@emoji-mart/react"
 import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
 import { MessageTypeEnum } from "../../types/MessageDto"
+import { AuthContext } from "../../contexts/AuthContext/AuthContext"
 
 const StyledInput = styled(TextField)(() => ({
   "& .MuiInputBase-input": {
@@ -62,10 +62,11 @@ function ChatFooter({
 }) {
   const theme = useTheme()
   const [openPicker, setOpenPicker] = React.useState(false)
-  const [openEmojis, setOpenEmojis] = React.useState(false)
   const [message, setMessage] = React.useState("")
+  const [isQuote, setIsQuote] = React.useState(false)
 
   const snackbarContext = React.useContext(SnackbarContext)
+  const authContext = React.useContext(AuthContext)
 
   const sendImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -102,43 +103,6 @@ function ChatFooter({
     }
     setOpenPicker(false)
   }
-
-  //   const sendDocument = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  //     try {
-  //       console.log("Send image")
-  //       const { files } = event.currentTarget
-  //       const file = files?.[0]
-  //       if (file && file.size > 5 * 1024 * 1024) {
-  //         snackbarContext.showSnackBarWithMessage(
-  //           "Image is too big (max 5MB)",
-  //           "warning"
-  //         )
-  //       } else if (file) {
-  //         console.log("File existing")
-
-  //         const formData = new FormData()
-
-  //         formData.append("image", file)
-
-  //         await fetch(
-  //           "https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5",
-  //           {
-  //             method: "POST",
-  //             body: formData,
-  //           }
-  //         )
-  //           .then((response) => response.json())
-  //           .then((result) => {
-  //             console.log("Success:", result)
-  //           })
-  //           .catch((error) => {
-  //             console.error("Error:", error)
-  //           })
-  //       }
-  //     } catch (error) {
-  //       snackbarContext.showSnackBarWithError(error)
-  //     }
-  //   }
 
   const sendDocument = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -197,18 +161,6 @@ function ChatFooter({
       >
         <Stack direction="row" alignItems={"center"} spacing={3}>
           <Stack sx={{ width: "100%" }}>
-            <Box
-              style={{
-                zIndex: 10,
-                position: "fixed",
-                display: openEmojis ? "inline" : "none",
-                bottom: 81,
-                right: 100,
-              }}
-            >
-              <Picker data={data} onEmojiSelect={console.log} />
-            </Box>
-            {/* Chat Input */}
             <StyledInput
               value={message}
               onChange={(event) => {
@@ -276,17 +228,26 @@ function ChatFooter({
                   </Stack>
                 ),
                 endAdornment: (
-                  <Stack sx={{ position: "relative" }}>
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => {
-                          setOpenEmojis(!openEmojis)
-                        }}
-                      >
-                        <SentimentSatisfiedAltIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  </Stack>
+                  <>
+                    {authContext.userType !== "customer" && (
+                      <Stack sx={{ position: "relative" }}>
+                        <InputAdornment position="end">
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={isQuote}
+                                onChange={(event) => {
+                                  setIsQuote(event.target.checked)
+                                }}
+                              />
+                            }
+                            label="Quote"
+                            labelPlacement="start"
+                          />
+                        </InputAdornment>
+                      </Stack>
+                    )}
+                  </>
                 ),
               }}
             />
@@ -305,7 +266,13 @@ function ChatFooter({
               justifyContent={"center"}
               component="form"
               onSubmit={(event) => {
-                sendMessage(message, MessageTypeEnum.STANDARD_MESSAGE, event)
+                sendMessage(
+                  message,
+                  isQuote
+                    ? MessageTypeEnum.QUOTE_OFFER
+                    : MessageTypeEnum.STANDARD_MESSAGE,
+                  event
+                )
                 setMessage("")
               }}
             >

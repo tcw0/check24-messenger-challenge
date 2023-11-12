@@ -2,7 +2,7 @@ import React from "react"
 import { Box, CircularProgress, Stack, Typography } from "@mui/material"
 
 import { MessageDto, MessageTypeEnum } from "../../types/MessageDto"
-import { TextMsg, MediaMsg, DocMsg } from "../../components/MessageTypes"
+import { TextMsg, MediaMsg, DocMsg, QuoteMsg } from "../../components/MessageTypes"
 
 function Messages({
   messages,
@@ -40,6 +40,8 @@ function Messages({
                   return <MediaMsg key={message._id} message={message} />
                 case MessageTypeEnum.DOCUMENT:
                   return <DocMsg key={message._id} message={message} />
+                case MessageTypeEnum.QUOTE_OFFER:
+                  return <QuoteMsg key={message._id} message={message} />
                 default:
                   return <TextMsg key={message._id} message={message} />
               }

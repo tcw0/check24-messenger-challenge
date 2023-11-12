@@ -209,3 +209,58 @@ export const DocMsg = ({ message }: { message: MessageDto }) => {
     </Stack>
   )
 }
+
+export const QuoteMsg = ({ message }: { message: MessageDto }) => {
+  const theme = useTheme()
+
+  const authContext = React.useContext(AuthContext)
+
+  const outgoing = () => {
+    if (authContext.userId == message.sender_id._id) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  return (
+    <Box
+      display={"flex"}
+      flexDirection={"column"}
+      alignItems={"center"}
+      px={1.5}
+      pt={1.5}
+      pb={0.5}
+      sx={{
+        backgroundColor: outgoing() ? theme.palette.primary.main : "#fff",
+        borderRadius: 1.5,
+        width: "100%",
+      }}
+    >
+      <Typography
+        variant="body2"
+        color={outgoing() ? "#fff" : theme.palette.text.primary}
+      >
+        {message.text}
+      </Typography>
+      <Box
+        flexDirection="row"
+        display={"flex"}
+        justifyContent={outgoing() ? "end" : "start"}
+        alignItems={"center"}
+      >
+        <Typography
+          fontSize={10}
+          color={outgoing() ? "#fff" : theme.palette.text.primary}
+        >
+          {formatTime(message.updated_at)}
+        </Typography>
+        {message.read_at && outgoing() && (
+          <DoneAllOutlinedIcon
+            sx={{ color: "white", height: "13px", width: "13px", ml: "5px" }}
+          />
+        )}
+      </Box>
+    </Box>
+  )
+}
