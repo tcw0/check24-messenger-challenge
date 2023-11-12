@@ -48,8 +48,8 @@ This project leverages the MERN (MongoDB, Express.js, React, Node.js) Stack, a p
 
 ### Environmnet variables
 
-An example of the necessary environment variables can be found in `.env.example` in `server` and `client`.
-The secrets are shared on demand. Reach out to one of the maintainers of the project to get access to the secrets.
+The necessary environment variables can be found in `.env` in `server`.
+The secrets are intentionally shared for ease of setup. Contact one of the maintainers of the project for further access to the secrets.
 
 The following environment variables are necessary to run the application:
 
@@ -72,7 +72,7 @@ The following environment variables are necessary to run the application:
 
 ### Run application
 
-1. Clone respository using `git clone: https://github.com/tcw0/check24-messenger-challenge.git`
+1. Clone respository using `git clone https://github.com/tcw0/check24-messenger-challenge.git`
 2. Frontend:
    1. Move to the client folder using `cd client`
    2. Install the necessary dependencies using `npm install`
@@ -81,6 +81,22 @@ The following environment variables are necessary to run the application:
    1. Move to the server folder using `cd server`
    2. Install the necessary dependencies using `npm install`
    3. Start the server using `npm start`
+
+### Use messenger
+
+**Create new user**
+
+We encourage you to create two users (customer & service_providers) for yourself to test out functionality that only occurs after creating both new user such as:
+ - Signup & Login
+ - Profile picture upload
+ - Choose conversation partner
+
+
+**Test User**
+
+To interact with an existing user, you can login with the following credentials:
+- **E-Mail:** reyes.herzog@gmail.com
+- **Password:** 1234
 
 ## Minimal Requirements
 
@@ -104,6 +120,7 @@ The following environment variables are necessary to run the application:
 
 
 ## Extra Features
+While the project meets the minimum requirements with a robust MERN Stack foundation, it doesn't stop there. These are just a few highlights among several additional features implemented to make this messenger not just functional, but exceptionally user-friendly and feature-rich:
 
 - **Unread Banner Behavior:** The messenger includes an unread banner behavior highlighting the number of unread messages.
 
