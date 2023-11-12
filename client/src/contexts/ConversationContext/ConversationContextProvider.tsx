@@ -1,7 +1,6 @@
 import React from "react"
 import { ConversationContext } from "./ConversationContext"
 import { ConversationDto } from "../../types/ConversationDto"
-import { MessageDto } from "../../types/MessageDto"
 
 export function ConversationContextProvider(props: {
   children: React.ReactNode
@@ -11,7 +10,6 @@ export function ConversationContextProvider(props: {
   const [selectedConversation, setSelectedConversation] = React.useState<
     ConversationDto | undefined
   >()
-  const [notification, setNotification] = React.useState<MessageDto[]>([])
   const [conversations, setConversations] = React.useState<ConversationDto[]>(
     []
   )
@@ -21,14 +19,12 @@ export function ConversationContextProvider(props: {
     return {
       selectedConversation,
       setSelectedConversation,
-      notification,
-      setNotification,
       conversations,
       setConversations,
       fetchConversations,
       setFetchConversations,
     }
-  }, [selectedConversation, notification, conversations, fetchConversations])
+  }, [selectedConversation, conversations, fetchConversations])
 
   return (
     <ConversationContext.Provider value={value}>

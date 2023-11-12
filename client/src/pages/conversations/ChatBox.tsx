@@ -197,36 +197,33 @@ const ChatBox = () => {
     socket = io(ENDPOINT)
     socket.emit("setup", authContext.userId)
     socket.on("connected", () => setSocketConnected(true))
-    socket.on("typing", (userId) => {
-      if (userId !== authContext.userId) {
+
+    socket.on("typing", ({ room, userId }) => {
+      if (
+        userId !== authContext.userId &&
+        room === conversationContext.selectedConversation?._id
+      ) {
         setIsTyping(true)
       }
     })
-    socket.on("stop typing", (userId) => {
-      if (userId !== authContext.userId) {
+
+    socket.on("stop typing", ({ room, userId }) => {
+      if (
+        userId !== authContext.userId &&
+        room === conversationContext.selectedConversation?._id
+      ) {
         setIsTyping(false)
       }
     })
-    // eslint-disable-next-line
-  }, [])
+  }, [conversationContext.selectedConversation, authContext.userId])
 
   React.useEffect(() => {
     socket.on("message received", (newMessageRecieved) => {
       if (
         !selectedConversationCompare ||
-        selectedConversationCompare._id !==
+        selectedConversationCompare._id ===
           newMessageRecieved.conversation_id._id
       ) {
-        if (!conversationContext.notification.includes(newMessageRecieved)) {
-          conversationContext.setNotification([
-            newMessageRecieved,
-            ...conversationContext.notification,
-          ])
-          conversationContext.setFetchConversations(
-            !conversationContext.fetchConversations
-          )
-        }
-      } else {
         setMessages([...messages, newMessageRecieved])
         updateUnread(newMessageRecieved.conversation_id._id)
         conversationContext.setFetchConversations(

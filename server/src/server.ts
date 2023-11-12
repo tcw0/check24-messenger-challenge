@@ -53,20 +53,12 @@ io.on("connection", (socket: Socket) => {
   })
 
   socket.on("new message", (newMessageRecieved) => {
-    console.log("new message recieved", newMessageRecieved)
     const conversation = newMessageRecieved.conversation_id
 
-    console.log("conversation", conversation)
     if (!conversation.customer_id || !conversation.service_provider_id)
       return console.log(
         "conversation.customer_id or conversation.service_provider_id not defined"
       )
-
-    console.log("conversation.customer_id._id", conversation.customer_id._id)
-    console.log(
-      "newMessageRecieved.sender_id._id",
-      newMessageRecieved.sender_id._id
-    )
 
     if (conversation.customer_id._id == newMessageRecieved.sender_id._id) {
       console.log("emitting to service provider")
@@ -84,13 +76,18 @@ io.on("connection", (socket: Socket) => {
   socket.on("typing", ({ room, userId }) => {
     console.log("Receiving typing", room, userId)
     if (userId !== socket.id) {
-      io.in(room).emit("typing", userId)
+      io.in(room).emit("typing", { room, userId })
     }
   })
 
   socket.on("stop typing", ({ room, userId }) => {
     if (userId !== socket.id) {
-      io.in(room).emit("stop typing", userId)
+      io.in(room).emit("stop typing", { room, userId })
     }
+  })
+
+  socket.off("setup", (userId) => {
+    console.log("USER DISCONNECTED")
+    socket.leave(userId)
   })
 })

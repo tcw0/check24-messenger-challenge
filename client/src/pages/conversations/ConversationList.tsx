@@ -10,6 +10,7 @@ import {
   ListItemButton,
   Divider,
 } from "@mui/material"
+import { useSearchParams } from "react-router-dom"
 
 import { SnackbarContext } from "../../contexts/SnackbarContext/SnackbarContext"
 import { AuthContext } from "../../contexts/AuthContext/AuthContext"
@@ -22,6 +23,7 @@ function ConversationList() {
   const snackbarContext = React.useContext(SnackbarContext)
   const authContext = React.useContext(AuthContext)
   const conversationContext = React.useContext(ConversationContext)
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const fetchConversations = async () => {
     try {
@@ -121,7 +123,11 @@ function ConversationList() {
                         conversationContext.selectedConversation?._id ===
                         conversation._id
                       }
-                      onClick={() => updateUnread(conversation)}
+                      onClick={() => {
+                        updateUnread(conversation)
+                        searchParams.set("id", conversation._id)
+                        setSearchParams(searchParams)
+                      }}
                     >
                       <ChatElement conversation={conversation} />
                     </ListItemButton>
