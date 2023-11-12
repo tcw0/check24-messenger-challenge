@@ -148,6 +148,22 @@ function ChatFooter({
     setOpenPicker(false)
   }
 
+  const handleEnterKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault() // Prevent new line
+      sendMessage(
+        message,
+        isQuote ? MessageTypeEnum.QUOTE_OFFER : MessageTypeEnum.STANDARD_MESSAGE
+      )
+      setMessage("")
+
+      if (isQuote) {
+        setDisableCheckbox(true)
+        setIsQuote(false)
+      }
+    }
+  }
+
   return (
     <Box
       sx={{
@@ -182,6 +198,7 @@ function ChatFooter({
                   ? true
                   : false
               }
+              onKeyDown={handleEnterKeyPress}
               fullWidth
               placeholder="Write a message..."
               variant="filled"
